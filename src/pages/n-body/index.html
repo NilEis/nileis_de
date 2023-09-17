@@ -20,7 +20,17 @@
     <canvas class=emscripten id=canvas onclick='document.getElementById("canvas").requestFullscreen()'
         tabindex=-1></canvas>
     <p id=output>
-        <script>if ("undefined" == typeof SharedArrayBuffer) { const e = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: !0 }); globalThis.SharedArrayBuffer = e.buffer.constructor } var Module = { print: function () { var e = document.getElementById("output"); return e && (e.value = ""), function (r) { arguments.length > 1 && (r = Array.prototype.slice.call(arguments).join(" ")), console.log(r), e && (e.value += r + "\n", e.scrollTop = e.scrollHeight) } }(), canvas: document.getElementById("canvas") }</script>
+        <script>
+        if ("undefined" == typeof SharedArrayBuffer) 
+        { 
+            const e = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: !0 });
+            globalThis.SharedArrayBuffer = e.buffer.constructor 
+        } var Module = {
+            print: function () {
+                var e = document.getElementById("output");
+                return e && (e.value = ""), function (r) { arguments.length > 1 && (r = Array.prototype.slice.call(arguments).join(" ")), console.log(r), e && (e.value += r + "\n", e.scrollTop = e.scrollHeight) } }(),
+                canvas: document.getElementById("canvas")
+            }</script>
         <script async src="n-body_mono.js"></script>
 </body>
 
