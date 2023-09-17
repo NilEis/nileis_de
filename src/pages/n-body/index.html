@@ -28,7 +28,7 @@
         } var Module = {
             print: function () {
                 var e = document.getElementById("output");
-                return e && (e.value = ""), function (r) { arguments.length > 1 && (r = Array.prototype.slice.call(arguments).join(" ")), console.log(r), e && (e.value += r + "\n", e.scrollTop = e.scrollHeight) } }(),
+                return e && (e.value = ""), function (r) { arguments.length > 1 && (r = Array.prototype.slice.call(arguments).join(" ")), console.log(r), e && (e.value += r + "\\n", e.scrollTop = e.scrollHeight) } }(),
                 canvas: document.getElementById("canvas")
             }</script>
         <script async src="n-body_mono.js"></script>
