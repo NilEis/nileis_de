@@ -1,7 +1,7 @@
 {
     "headers": [
       {
-        "source": "/n-body/(.*)",
+        "source": "*/n-body_mono.*",
 
         "headers": [
           {
