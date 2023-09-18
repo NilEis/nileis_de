@@ -1,36 +1,53 @@
-<html lang=en-us>
+<!doctype html>
+<html lang="en-us">
 
 <head>
-    <meta charset=utf-8>
-    <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-    <title>n-body</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>N-Body</title>
+
     <style>
         body {
-            margin: 0
+            margin: 0px;
         }
 
         canvas.emscripten {
-            border: 0 none;
-            background-color: #000
+            border: 0px none;
+            background-color: black;
         }
     </style>
 </head>
 
 <body>
-    <canvas class=emscripten id=canvas onclick='document.getElementById("canvas").requestFullscreen()'
-        tabindex=-1></canvas>
-    <p id=output>
-        <script>
-        if ("undefined" == typeof SharedArrayBuffer) 
-        { 
-            const e = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: !0 });
-            globalThis.SharedArrayBuffer = e.buffer.constructor 
-        } var Module = {
-            print: function () {
-                var e = document.getElementById("output");
-                return e && (e.value = ""), function (r) { arguments.length > 1 && (r = Array.prototype.slice.call(arguments).join(" ")), console.log(r), e && (e.value += r + "\\n", e.scrollTop = e.scrollHeight) } }(),
-                canvas: document.getElementById("canvas")
-            }</script>
-        <script async src="n-body_mono.js"></script>
+    <canvas class=emscripten id=canvas tabindex=-1
+        onclick="document.getElementById('canvas').requestFullscreen()"></canvas>
+    <p id="output" />
+    <script>
+        if (typeof SharedArrayBuffer === 'undefined') {
+            const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true })
+            globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
+        }
+        var Module = {
+            print: (function () {
+                var element = document.getElementById('output');
+                if (element) element.value = ''; // clear browser cache
+                return function (text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                    if (element) {
+                        element.value += text + "\n";
+                        element.scrollTop = element.scrollHeight; // focus on bottom
+                    }
+                };
+            })(),
+            canvas: (function () {
+                var canvas = document.getElementById('canvas');
+                return canvas;
+            })()
+        };
+    </script>
+    <script async type="text/javascript" src="n-body_mono.js"></script>
 </body>
+
 </html>
