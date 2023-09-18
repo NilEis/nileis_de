@@ -20,6 +20,8 @@
 </head>
 
 <body>
+    <canvas class=emscripten id=canvas tabindex=-1
+        onclick="document.getElementById('canvas').requestFullscreen()"></canvas>
     <p id="output" />
     <script>
         if (typeof SharedArrayBuffer === 'undefined') {
@@ -34,23 +36,18 @@
                     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
                     console.log(text);
                     if (element) {
-                        element.value += text + "\n";
+                        element.value += text + "\\n";
                         element.scrollTop = element.scrollHeight; // focus on bottom
                     }
                 };
             })(),
             canvas: (function () {
-                let canvas = document.createElement("canvas");
-                document.body.appendChild(canvas);
-                canvas.setAttribute("class", "emscripten");
-                canvas.setAttribute("id", "canvas");
-                canvas.setAttribute("tabindex", "-1");
-                canvas.onclick = () => { document.getElementById('canvas').requestFullscreen() };
+                var canvas = document.getElementById('canvas');
                 return canvas;
             })()
         };
     </script>
-    <script type="text/javascript" src="n-body_mono.js"></script>
+    <script async type="text/javascript" src="n-body_mono.js"></script>
 </body>
 
 </html>
