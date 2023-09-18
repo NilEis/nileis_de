@@ -20,8 +20,6 @@
 </head>
 
 <body>
-    <canvas class=emscripten id=canvas tabindex=-1
-        onclick="document.getElementById('canvas').requestFullscreen()"></canvas>
     <p id="output" />
     <script>
         if (typeof SharedArrayBuffer === 'undefined') {
@@ -42,12 +40,17 @@
                 };
             })(),
             canvas: (function () {
-                var canvas = document.getElementById('canvas');
+                let canvas = document.createElement("canvas");
+                document.body.appendChild(canvas);
+                canvas.setAttribute("class", "emscripten");
+                canvas.setAttribute("id", "canvas");
+                canvas.setAttribute("tabindex", "-1");
+                canvas.onclick = () => { document.getElementById('canvas').requestFullscreen() };
                 return canvas;
             })()
         };
     </script>
-    <script async defer type="text/javascript" src="n-body_mono.js"></script>
+    <script async type="text/javascript" src="n-body_mono.js"></script>
 </body>
 
 </html>
