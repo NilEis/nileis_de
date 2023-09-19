@@ -1,7 +1,7 @@
 {
     "headers": [
       {
-        "source": "/n-body_mono(.*)",
+        "source": "/chip-8(.*)",
 
         "headers": [
           {
