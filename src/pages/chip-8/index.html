@@ -29,7 +29,7 @@
             const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true })
             globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
         }
-        let Module = {
+        var Module = {
             print: (function () {
                 var element = document.getElementById('output');
                 if (element) element.value = ''; // clear browser cache
