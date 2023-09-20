@@ -1,27 +1,54 @@
-<!doctypehtml>
-    <html lang=en-us>
+<!doctype html>
+<html lang="en-us">
 
-    <head>
-        <meta charset=utf-8>
-        <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-        <title>Chip-8</title>
-        <meta content="width=device-width" name=viewport>
-        <style>
-            body {
-                margin: 0
-            }
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-            canvas.emscripten {
-                border: 0 none;
-                background-color: #000
-            }
-        </style>
-    </head>
+    <title>Chip-8</title>
+    <meta name="viewport" content="width=device-width">
 
-    <body><canvas class=emscripten id=canvas onclick='document.getElementById("canvas").requestFullscreen()'
-            tabindex=-1></canvas>
-        <p id=output>
-            <script async src=chip-8/chip-8.js></script>
-    </body>
+    <style>
+        body {
+            margin: 0px;
+        }
 
-    </html>
+        canvas.emscripten {
+            border: 0px none;
+            background-color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas class=emscripten id=canvas tabindex=-1
+        onclick="document.getElementById('canvas').requestFullscreen()"></canvas>
+    <p id="output" />
+    <script>
+        if (typeof SharedArrayBuffer === 'undefined') {
+            const dummyMemory = new WebAssembly.Memory({ initial: 0, maximum: 0, shared: true })
+            globalThis.SharedArrayBuffer = dummyMemory.buffer.constructor
+        }
+        let Module = {
+            print: (function () {
+                var element = document.getElementById('output');
+                if (element) element.value = ''; // clear browser cache
+                return function (text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                    if (element) {
+                        element.value += text + "\\n";
+                        element.scrollTop = element.scrollHeight; // focus on bottom
+                    }
+                };
+            })(),
+            canvas: (function () {
+                var canvas = document.getElementById('canvas');
+                return canvas;
+            })()
+        };
+    </script>
+    <script async type="text/javascript" src="chip-8.js"></script>
+</body>
+
+</html>
