@@ -108,7 +108,7 @@ function handleMessage(e) {
             if (Module["_pthread_self"]()) {
                 Module["__emscripten_thread_exit"](-1)
             }
-        } else if (e.data.target === "setimmediate") { } else if (e.data.cmd === "checkMailbox") {
+        } else if (e.data.target === "setimmediate") {} else if (e.data.cmd === "checkMailbox") {
             if (initializedJS) {
                 Module["checkMailbox"]()
             }
