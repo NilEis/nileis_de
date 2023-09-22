@@ -432,7 +432,7 @@ var tempDouble;
 var tempI64;
 
 var ASM_CONSTS = {
- 92680: $0 => {
+ 93784: $0 => {
   var str = UTF8ToString($0) + "\n\n" + "Abort/Retry/Ignore/AlwaysIgnore? [ariA] :";
   var reply = window.prompt(str, "i");
   if (reply === null) {
@@ -440,7 +440,7 @@ var ASM_CONSTS = {
   }
   return allocate(intArrayFromString(reply), "i8", ALLOC_NORMAL);
  },
- 92905: () => {
+ 94009: () => {
   if (typeof (AudioContext) !== "undefined") {
    return true;
   } else if (typeof (webkitAudioContext) !== "undefined") {
@@ -448,7 +448,7 @@ var ASM_CONSTS = {
   }
   return false;
  },
- 93052: () => {
+ 94156: () => {
   if ((typeof (navigator.mediaDevices) !== "undefined") && (typeof (navigator.mediaDevices.getUserMedia) !== "undefined")) {
    return true;
   } else if (typeof (navigator.webkitGetUserMedia) !== "undefined") {
@@ -456,7 +456,7 @@ var ASM_CONSTS = {
   }
   return false;
  },
- 93286: $0 => {
+ 94390: $0 => {
   if (typeof (Module["SDL3"]) === "undefined") {
    Module["SDL3"] = {};
   }
@@ -478,11 +478,11 @@ var ASM_CONSTS = {
   }
   return SDL3.audioContext === undefined ? -1 : 0;
  },
- 93780: () => {
+ 94884: () => {
   var SDL3 = Module["SDL3"];
   return SDL3.audioContext.sampleRate;
  },
- 93848: ($0, $1, $2, $3) => {
+ 94952: ($0, $1, $2, $3) => {
   var SDL3 = Module["SDL3"];
   var have_microphone = function(stream) {
    if (SDL3.capture.silenceTimer !== undefined) {
@@ -523,7 +523,7 @@ var ASM_CONSTS = {
    }, have_microphone, no_microphone);
   }
  },
- 95500: ($0, $1, $2, $3) => {
+ 96604: ($0, $1, $2, $3) => {
   var SDL3 = Module["SDL3"];
   SDL3.audio.scriptProcessorNode = SDL3.audioContext["createScriptProcessor"]($1, 0, $0);
   SDL3.audio.scriptProcessorNode["onaudioprocess"] = function(e) {
@@ -535,7 +535,7 @@ var ASM_CONSTS = {
   };
   SDL3.audio.scriptProcessorNode["connect"](SDL3.audioContext["destination"]);
  },
- 95910: ($0, $1) => {
+ 97014: ($0, $1) => {
   var SDL3 = Module["SDL3"];
   var numChannels = SDL3.capture.currentCaptureBuffer.numberOfChannels;
   for (var c = 0; c < numChannels; ++c) {
@@ -554,7 +554,7 @@ var ASM_CONSTS = {
    }
   }
  },
- 96515: ($0, $1) => {
+ 97619: ($0, $1) => {
   var SDL3 = Module["SDL3"];
   var numChannels = SDL3.audio.currentOutputBuffer["numberOfChannels"];
   for (var c = 0; c < numChannels; ++c) {
@@ -567,7 +567,7 @@ var ASM_CONSTS = {
    }
   }
  },
- 96995: $0 => {
+ 98099: $0 => {
   var SDL3 = Module["SDL3"];
   if ($0) {
    if (SDL3.capture.silenceTimer !== undefined) {
@@ -605,7 +605,7 @@ var ASM_CONSTS = {
    SDL3.audioContext = undefined;
   }
  },
- 98167: ($0, $1, $2, $3) => {
+ 99271: ($0, $1, $2, $3) => {
   var w = $0;
   var h = $1;
   var pixels = $2;
@@ -665,7 +665,7 @@ var ASM_CONSTS = {
   }
   SDL3.ctx.putImageData(SDL3.image, 0, 0);
  },
- 99399: ($0, $1, $2, $3, $4) => {
+ 100503: ($0, $1, $2, $3, $4) => {
   var w = $0;
   var h = $1;
   var hot_x = $2;
@@ -686,18 +686,18 @@ var ASM_CONSTS = {
   stringToUTF8(url, urlBuf, url.length + 1);
   return urlBuf;
  },
- 100054: $0 => {
+ 101158: $0 => {
   if (Module["canvas"]) {
    Module["canvas"].style["cursor"] = UTF8ToString($0);
   }
  },
- 100137: () => {
+ 101241: () => {
   if (Module["canvas"]) {
    Module["canvas"].style["cursor"] = "none";
   }
  },
- 100206: () => window.innerWidth,
- 100236: () => window.innerHeight
+ 101310: () => window.innerWidth,
+ 101340: () => window.innerHeight
 };
 
 /** @constructor */ function ExitStatus(status) {
@@ -875,7 +875,7 @@ var PThread = {
   }
  },
  initMainThread() {
-  var pthreadPoolSize = 1;
+  var pthreadPoolSize = 2;
   while (pthreadPoolSize--) {
    PThread.allocateUnusedWorker();
   }
@@ -7088,17 +7088,19 @@ var stackAlloc = a0 => (stackAlloc = wasmExports["stackAlloc"])(a0);
 
 var dynCall_ii = Module["dynCall_ii"] = (a0, a1) => (dynCall_ii = Module["dynCall_ii"] = wasmExports["dynCall_ii"])(a0, a1);
 
+var dynCall_viii = Module["dynCall_viii"] = (a0, a1, a2, a3) => (dynCall_viii = Module["dynCall_viii"] = wasmExports["dynCall_viii"])(a0, a1, a2, a3);
+
 var dynCall_iii = Module["dynCall_iii"] = (a0, a1, a2) => (dynCall_iii = Module["dynCall_iii"] = wasmExports["dynCall_iii"])(a0, a1, a2);
 
-var dynCall_viiii = Module["dynCall_viiii"] = (a0, a1, a2, a3, a4) => (dynCall_viiii = Module["dynCall_viiii"] = wasmExports["dynCall_viiii"])(a0, a1, a2, a3, a4);
+var dynCall_vid = Module["dynCall_vid"] = (a0, a1, a2) => (dynCall_vid = Module["dynCall_vid"] = wasmExports["dynCall_vid"])(a0, a1, a2);
 
 var dynCall_v = Module["dynCall_v"] = a0 => (dynCall_v = Module["dynCall_v"] = wasmExports["dynCall_v"])(a0);
+
+var dynCall_viiii = Module["dynCall_viiii"] = (a0, a1, a2, a3, a4) => (dynCall_viiii = Module["dynCall_viiii"] = wasmExports["dynCall_viiii"])(a0, a1, a2, a3, a4);
 
 var dynCall_vi = Module["dynCall_vi"] = (a0, a1) => (dynCall_vi = Module["dynCall_vi"] = wasmExports["dynCall_vi"])(a0, a1);
 
 var dynCall_iiii = Module["dynCall_iiii"] = (a0, a1, a2, a3) => (dynCall_iiii = Module["dynCall_iiii"] = wasmExports["dynCall_iiii"])(a0, a1, a2, a3);
-
-var dynCall_viii = Module["dynCall_viii"] = (a0, a1, a2, a3) => (dynCall_viii = Module["dynCall_viii"] = wasmExports["dynCall_viii"])(a0, a1, a2, a3);
 
 var dynCall_jiij = Module["dynCall_jiij"] = (a0, a1, a2, a3, a4) => (dynCall_jiij = Module["dynCall_jiij"] = wasmExports["dynCall_jiij"])(a0, a1, a2, a3, a4);
 
