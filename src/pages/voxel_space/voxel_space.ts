@@ -34,6 +34,10 @@ export interface VoxelSpaceMap {
 export interface VoxelSpace {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  framebuffer: {
+    canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D;
+    scaling_factor: number;
+  };
   map: VoxelSpaceMap;
   state: GameState;
 }
@@ -45,24 +49,38 @@ export function VoxelSpaceInit(
   const res: VoxelSpace = {
     canvas: canvas.elem,
     ctx: canvas.ctx,
+    framebuffer: {
+      canvas: document.createElement('canvas'),
+      ctx: document.createElement('canvas').getContext('2d') as
+          CanvasRenderingContext2D,
+      scaling_factor: 1,
+    },
     map: map,
     state: {
       pos: {x: 0, y: 0},
       phi: 0,
-      height: 255,
-      horizon: canvas.elem.height / 2 + canvas.elem.height / 4,
+      height: 50,
+      horizon: 120,
       scale_height: 120,
       distance: 300,
       keys: {}
     }
   };
   canvas.elem.style.backgroundColor = 'black';
-  const parent = canvas.elem.parentNode as HTMLDivElement;
-  parent.onresize = () => {
-    canvas.elem.width = parent.clientWidth;
-    canvas.elem.height = parent.clientHeight;
+  res.ctx.imageSmoothingEnabled = false;
+  res.canvas.style.imageRendering = 'crisp-edges';
+  res.framebuffer.ctx =
+      res.framebuffer.canvas.getContext('2d') as CanvasRenderingContext2D;
+  document.onresize = () => {
+    const parent = res.canvas.parentNode as HTMLDivElement;
+    res.canvas.width = parent.clientWidth;
+    res.canvas.height = parent.clientHeight;
+    res.framebuffer.canvas.width =
+        res.canvas.width * res.framebuffer.scaling_factor;
+    res.framebuffer.canvas.height =
+        res.canvas.height * res.framebuffer.scaling_factor;
   };
-  parent.onresize(new UIEvent('resize'));
+  document.onresize(new UIEvent('resize'));
   return res;
 }
 
@@ -98,6 +116,7 @@ export async function init(): Promise<VoxelSpace> {
   };
   document.onkeydown = (e: KeyboardEvent) => {
     vs.state.keys[e.key] = true;
+    e.preventDefault();
   };
   document.onkeyup = (e: KeyboardEvent) => {
     vs.state.keys[e.key] = false;
@@ -107,30 +126,30 @@ export async function init(): Promise<VoxelSpace> {
 
 export function tick(state: VoxelSpace) {
   if (state.state.keys['w']) {
-    state.state.pos.y += Math.cos(state.state.phi);
-    state.state.pos.x += Math.sin(state.state.phi);
-  }
-  if (state.state.keys['s']) {
     state.state.pos.y -= Math.cos(state.state.phi);
     state.state.pos.x -= Math.sin(state.state.phi);
   }
-  if (state.state.keys['a']) {
-    state.state.phi += 0.05;
+  if (state.state.keys['s']) {
+    state.state.pos.y += Math.cos(state.state.phi);
+    state.state.pos.x += Math.sin(state.state.phi);
   }
-  if (state.state.keys['d']) {
-    state.state.phi -= 0.05;
+  if (state.state.keys['a'] || state.state.keys['ArrowLeft']) {
+    state.state.phi += 0.1;
   }
-  if (state.state.keys[' ']) {
+  if (state.state.keys['d'] || state.state.keys['ArrowRight']) {
+    state.state.phi -= 0.1;
+  }
+  if (state.state.keys['e']) {
     state.state.height += 1;
   }
-  if (state.state.keys['Control']) {
+  if (state.state.keys['q']) {
     state.state.height -= 1;
   }
   if (state.state.keys['ArrowUp']) {
-    state.state.horizon += 1;
+    state.state.horizon += 5;
   }
   if (state.state.keys['ArrowDown']) {
-    state.state.horizon -= 1;
+    state.state.horizon -= 5;
   }
   render(state);
 }
@@ -221,7 +240,7 @@ function hightMapFromImageData(data: ImageData): Array<Float32Array> {
 }
 
 function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
-  if (start.y > end.y) {
+  if (start.y < end.y) {
     return;
   }
   if (start.y < 0) {
@@ -236,67 +255,63 @@ function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
   const b =
       state.map.color.data
           .data[((map_pos.y * state.map.color.data.width + map_pos.x) * 4) + 2];
-  state.ctx.strokeStyle = `rgb(${r},${g},${b})`;
-  state.ctx.beginPath();
-  state.ctx.moveTo(start.x, start.y);
-  state.ctx.lineTo(end.x, end.y);
-  state.ctx.stroke();
+  state.framebuffer.ctx.strokeStyle = `rgb(${r},${g},${b})`;
+  state.framebuffer.ctx.beginPath();
+  state.framebuffer.ctx.moveTo(start.x, start.y);
+  state.framebuffer.ctx.lineTo(end.x, end.y);
+  state.framebuffer.ctx.stroke();
 }
 
 function render(state: VoxelSpace) {
   state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+  state.framebuffer.ctx.clearRect(
+      0, 0, state.framebuffer.canvas.width, state.framebuffer.canvas.height);
   // precalculate viewing angle parameters
   const sinPhi = Math.sin(state.state.phi);
   const cosPhi = Math.cos(state.state.phi);
 
-  const hbuffer =
-      new Array<number>(state.canvas.width).fill(state.canvas.height);
+  const hbuffer = new Array<number>(state.framebuffer.canvas.width)
+                      .fill(state.framebuffer.canvas.height);
 
-  let dz = 1.
-  let z = 1.
+  let dz = 1.0;
+  let z = 1.0;
   while (z < state.state.distance) {
     let pleft: Coord = {
-      x: Math.floor(
-             ((-cosPhi * z - sinPhi * z) + state.state.pos.x) +
-             state.map.height.data.width) %
-          state.map.height.data.width,
-      y: Math.floor(
-             ((sinPhi * z - cosPhi * z) + state.state.pos.y) +
-             state.map.height.data.height) %
-          state.map.height.data.height
+      x: (-cosPhi * z - sinPhi * z) + state.state.pos.x,
+      y: (sinPhi * z - cosPhi * z) + state.state.pos.y
     };
     let pright: Coord = {
-      x: Math.floor(
-             ((cosPhi * z - sinPhi * z) + state.state.pos.x) +
-             state.map.height.data.width) %
-          state.map.height.data.width,
-      y: Math.floor(
-             ((-sinPhi * z - cosPhi * z) + state.state.pos.y) +
-             state.map.height.data.height) %
-          state.map.height.data.height
+      x: (cosPhi * z - sinPhi * z) + state.state.pos.x,
+      y: (-sinPhi * z - cosPhi * z) + state.state.pos.y
     };
 
     const dx = (pright.x - pleft.x) / state.map.height.data.width;
     const dy = (pright.y - pleft.y) / state.map.height.data.width;
 
-    for (let i = 0; i < state.canvas.width; i++) {
+    for (let i = 0; i < state.framebuffer.canvas.width; i++) {
+      const map_pos: Coord = {
+        x: (Math.floor(pleft.x) + (state.map.height.data.width * 2)) %
+            state.map.height.data.width,
+        y: (Math.floor(pleft.y) + (state.map.height.data.height * 2)) %
+            state.map.height.data.height,
+      };
       const height_on_screen =
           (state.state.height -
-           state.map.height.data.values[pleft.y][pleft.x]) /
+           state.map.height.data.values[map_pos.y][map_pos.x]) /
               z * state.state.scale_height +
           state.state.horizon;
       drawLine(
           state, {x: i, y: hbuffer[i]}, {x: i, y: height_on_screen},
-          {x: pleft.x, y: pleft.y});
+          {x: map_pos.x, y: map_pos.y});
       if (height_on_screen < hbuffer[i]) {
         hbuffer[i] = height_on_screen;
       }
-      pleft.x = Math.floor((pleft.x + dx) + state.map.height.data.width) %
-          state.map.height.data.width;
-      pleft.y = Math.floor((pleft.y + dy) + state.map.height.data.height) %
-          state.map.height.data.height;
+      pleft.x = pleft.x + dx;
+      pleft.y = pleft.y + dy;
     }
     z += dz;
     dz += 0.2;
   }
+  state.ctx.drawImage(
+      state.framebuffer.canvas, 0, 0, state.canvas.width, state.canvas.height);
 }
