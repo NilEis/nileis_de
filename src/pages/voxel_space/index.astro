@@ -1,0 +1,76 @@
+---
+import { Image } from "astro:assets";
+import map_1_color from "./images/1_color.png";
+import map_1_height from "./images/1_height.png";
+import "./style.css";
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Voxel space</title>
+    </head>
+    <body>
+        <section class="div_table">
+            <div class="tl">
+                <label for="color_input">Colour map:</label>
+                <input
+                    type="file"
+                    name="color_input"
+                    id="color_input"
+                    accept="image/*"
+                />
+                <br />
+                <label for="height_input">Height map:</label>
+                <input
+                    type="file"
+                    name="height_input"
+                    id="height_input"
+                    accept="image/*"
+                />
+                <br />
+                <button id="loadBtn">load</button>
+                <button id="resetBtn">reset</button>
+            </div>
+            <div class="tm">
+                <canvas
+                    id="canvas"
+                    onclick="document.getElementById('canvas').requestFullscreen()"
+                ></canvas>
+            </div>
+            <div class="tr">
+                <section class="map_table">
+                    <div id="color">
+                        <Image
+                            src={map_1_color}
+                            alt="Color map"
+                            id="color_map"
+                            loading="eager"
+                        />
+                    </div>
+                    <div id="height">
+                        <Image
+                            src={map_1_height}
+                            alt="Height map"
+                            id="height_map"
+                            loading="eager"
+                        />
+                    </div>
+                </section>
+            </div>
+            <div class="ml">4</div>
+            <div class="mm">5</div>
+            <div class="mr">6</div>
+            <div class="bl">7</div>
+            <div class="bm">8</div>
+            <div class="br">9</div>
+        </section>
+        <script>
+            import { main } from "./voxel_space.ts";
+            import type { VoxelSpace } from "./voxel_space.ts";
+            main();
+        </script>
+    </body>
+</html>

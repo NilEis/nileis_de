@@ -30,20 +30,28 @@ class Tile {
   }
 }
 
-const SEA: Tile = new Tile('blue', 'sea', 2 / 6);
+const SEA: Tile = new Tile('blue', 'sea', 3 / 6);
+const SEA_COAST: Tile = new Tile('lightblue', 'coast', 1 / 6);
 const COAST: Tile = new Tile('yellow', 'coast', 1 / 6);
-const LAND: Tile = new Tile('green', 'land', 2 / 6);
+const LAND: Tile = new Tile('green', 'land', 1 / 6);
 SEA.constraints = {
-  left: new Set<Tile>([SEA, COAST]),
-  right: new Set<Tile>([SEA, COAST]),
+  left: new Set<Tile>([SEA, SEA_COAST]),
+  right: new Set<Tile>([SEA, SEA_COAST]),
   up: new Set<Tile>([SEA]),
-  down: new Set<Tile>([SEA, COAST])
+  down: new Set<Tile>([SEA, SEA_COAST])
+};
+
+SEA_COAST.constraints = {
+  left: new Set<Tile>([COAST, SEA_COAST]),
+  right: new Set<Tile>([SEA, SEA_COAST]),
+  up: new Set<Tile>([SEA]),
+  down: new Set<Tile>([SEA_COAST, COAST])
 };
 
 COAST.constraints = {
   left: new Set<Tile>([COAST, LAND]),
-  right: new Set<Tile>([COAST, LAND, SEA]),
-  up: new Set<Tile>([SEA]),
+  right: new Set<Tile>([COAST, SEA_COAST]),
+  up: new Set<Tile>([SEA_COAST]),
   down: new Set<Tile>([LAND])
 };
 
@@ -69,7 +77,6 @@ class Cell {
     return this.collapsed;
   }
   collapse(force: Tile|null = null): void {
-    this.restorable = new Set<Tile>(this.cell as Set<Tile>);
     if (force == null) {
       const arr: Array<Tile> = Array.from((this.cell as Set<Tile>).values());
       if (1) {
@@ -101,25 +108,12 @@ class Cell {
   public get tile(): Tile {
     return this.cell as Tile;
   }
-  public propagate<T>(wfc: Wfc, tiles: Iterable<Tile>, pos: {
-    coord: Coordinate; dir: string;
-  }): boolean {
+  public propagate(tile: Tile, dir: string): boolean {
     if (!this.collapsed) {
       this.restorable = new Set<Tile>(this.cell as Set<Tile>);
-      let has_changed: boolean = false;
       for (const t of this.cell as Set<Tile>) {
-        for (const tile of tiles) {
-          if (!tile.constraints[pos.dir].has(t)) {
-            (this.cell as Set<Tile>).delete(t);
-            has_changed = true;
-          }
-        }
-      }
-      if (has_changed) {
-        for (const new_pos of get_valid_neighbours(
-                 wfc, pos.coord.x, pos.coord.y)) {
-          wfc.map.array[new_pos.coord.y][new_pos.coord.x].propagate(
-              wfc, this.cell as Set<Tile>, new_pos);
+        if (!tile.constraints[dir].has(t)) {
+          (this.cell as Set<Tile>).delete(t);
         }
       }
       if ((this.cell as Set<Tile>).size == 0) {
@@ -130,7 +124,6 @@ class Cell {
     return true;
   }
   public restore(): void {
-    this.collapsed = false;
     this.cell = new Set<Tile>(this.restorable);
   }
 }
@@ -151,9 +144,7 @@ export interface Wfc {
     size: number,
   };
   animated: boolean;
-  interactive: boolean;
   first: boolean;
-  key: {[name: string]: boolean}
 }
 
 function canvas_resize_handler(wfc: Wfc) {
@@ -168,7 +159,6 @@ export const init = ():
       const res: Wfc = {
         first: true,
         animated: false,
-        interactive: false,
         canvas: document.getElementById('canvas')! as HTMLCanvasElement,
         ctx: (document.getElementById('canvas')! as HTMLCanvasElement)
                  .getContext('2d')!,
@@ -178,8 +168,7 @@ export const init = ():
           height: 10,
           size: 10 * 10,
           array: new Array<Array<Cell>>()
-        },
-        key: {}
+        }
       };
       res.canvas.onresize = () => {
         canvas_resize_handler(res);
@@ -195,26 +184,15 @@ export const init = ():
       if (url.searchParams.has('anim')) {
         res.animated = true;
       }
-      if (url.searchParams.has('interactive')) {
-        res.interactive = true;
-      }
 
       res.map.size = res.map.height * res.map.width;
 
       res.map.array = Array.from(
           {length: res.map.height},
-          (_, i): Array<Cell> =>
-              Array.from({length: res.map.width}, (): Cell => new Cell()));
+          (_, i): Array<Cell >=>Array.from(
+              {length: res.map.width}, (): Cell => new Cell()));
       canvas_resize_handler(res);
       res.canvas.style.backgroundColor = 'black';
-      window.onkeydown = (e: KeyboardEvent) => {
-        console.log(e);
-        console.log(`Key: ${e.key}`);
-        res.key[e.key] = true;
-      };
-      window.onkeyup = (e: KeyboardEvent) => {
-        res.key[e.key] = false;
-      };
       console.log(res);
       return res;
     }
@@ -238,26 +216,21 @@ function get_valid_neighbours(wfc: Wfc, x: number, y: number): Array<{
   return res;
 }
 
-function collapse(
-    wfc: Wfc, force: {x: number, y: number}|null = null): boolean {
+function collapse(wfc: Wfc): boolean {
   if (wfc.map.size == 0) {
     return false;
   }
   wfc.map.size--;
   let current_cell: Coordinate = {x: 0, y: 0};
-  if (force == null) {
-    for (let y = 0; y < wfc.map.array.length; y++) {
-      for (let x = 0; x < wfc.map.array[y].length; x++) {
-        if ((wfc.map.array[current_cell.y][current_cell.x].is_collapsed()) ||
-            (!wfc.map.array[y][x].is_collapsed() &&
-             wfc.map.array[y][x].entropy <
-                 wfc.map.array[current_cell.y][current_cell.x].entropy)) {
-          current_cell = {x: x, y: y};
-        }
+  for (let y = 0; y < wfc.map.array.length; y++) {
+    for (let x = 0; x < wfc.map.array[y].length; x++) {
+      if ((wfc.map.array[current_cell.y][current_cell.x].is_collapsed()) ||
+          (!wfc.map.array[y][x].is_collapsed() &&
+           wfc.map.array[y][x].entropy <
+               wfc.map.array[current_cell.y][current_cell.x].entropy)) {
+        current_cell = {x: x, y: y};
       }
     }
-  } else {
-    current_cell = {x: force.x, y: force.y};
   }
   if (!wfc.map.array[current_cell.y][current_cell.x].is_collapsed()) {
     wfc.map.array[current_cell.y][current_cell.x].collapse();
@@ -265,9 +238,17 @@ function collapse(
       draw(wfc, current_cell.x, current_cell.y);
     }
     const curr: Tile = wfc.map.array[current_cell.y][current_cell.x].tile;
+    const processed: Array < Coordinate >= new Array<Coordinate>();
     for (const pos of get_valid_neighbours(
              wfc, current_cell.x, current_cell.y)) {
-      wfc.map.array[pos.coord.y][pos.coord.x].propagate(wfc, [curr], pos);
+      if (wfc.map.array[pos.coord.y][pos.coord.x].propagate(curr, pos.dir)) {
+        processed.push(pos.coord);
+      } else {
+        for (const p of processed) {
+          wfc.map.array[p.y][p.x].restore();
+        }
+        break;
+      }
     }
   }
   wfc.first = false;
@@ -288,30 +269,7 @@ function draw(wfc: Wfc, x: number, y: number) {
       wfc.map.cell.height);
 }
 
-export const main =
-    async (wfc: Wfc) => {
-  wfc.canvas.onclick = (e: MouseEvent) => {
-    const x = Math.floor(e.pageX / wfc.canvas.width * wfc.map.width);
-    const y = Math.floor(e.pageY / wfc.canvas.height * wfc.map.height);
-    collapse(wfc, {x, y});
-    wfc.canvas.onclick = null;
-    if (wfc.interactive) {
-      requestAnimationFrame(() => poll_state(wfc));
-    }
-    loop(wfc);
-  };
-}
-
-function poll_state(wfc: Wfc) {
-  if (wfc.key['n']) {
-    loop(wfc);
-  }
-  if (wfc.interactive) {
-    requestAnimationFrame(() => poll_state(wfc));
-  }
-}
-
-function loop(wfc: Wfc) {
+export const main = async (wfc: Wfc) => {
   while (collapse(wfc) && wfc.animated)
     ;
   if (!wfc.animated) {
@@ -319,8 +277,5 @@ function loop(wfc: Wfc) {
                             draw(wfc, x, y);
                           })})
   }
-  if (!wfc.interactive) {
-    poll_state(wfc);
-    requestAnimationFrame(() => loop(wfc));
-  }
+  requestAnimationFrame(() => main(wfc));
 }
