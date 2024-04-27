@@ -10,7 +10,7 @@ interface Constraint {
 class Tile {
   private color: string;
   private name: string;
-  private _constraints: Constraint | undefined;
+  private _constraints: Constraint|undefined;
   readonly weight: number;
 
   constructor(color: string, name: string, weight: number) {
@@ -58,7 +58,7 @@ LAND.constraints = {
 
 class Cell {
   private collapsed: boolean;
-  private cell: Set<Tile> | Tile;
+  private cell: Set<Tile>|Tile;
   private restorable: Set<Tile>;
   constructor() {
     this.collapsed = false;
@@ -68,13 +68,13 @@ class Cell {
   is_collapsed(): boolean {
     return this.collapsed;
   }
-  collapse(force: Tile | null = null): void {
+  collapse(force: Tile|null = null): void {
     this.restorable = new Set<Tile>(this.cell as Set<Tile>);
     if (force == null) {
       const arr: Array<Tile> = Array.from((this.cell as Set<Tile>).values());
       if (1) {
         const totalWeight: number =
-          arr.reduce((a: number, b: Tile) => a + b.weight, 0);
+            arr.reduce((a: number, b: Tile) => a + b.weight, 0);
         let random = Math.random() * totalWeight;
         this.cell = arr.find((_, i) => (random -= arr[i].weight) <= 0)!;
       } else {
@@ -95,18 +95,31 @@ class Cell {
     const arr: Array<Tile> = Array.from((this.cell as Set<Tile>).values());
     const sum: number = arr.reduce((acc, curr) => acc + curr.weight, 0);
     const sum_with_log: number = arr.reduce(
-      (acc, curr) => acc + (curr.weight * Math.log(curr.weight)), 0);
+        (acc, curr) => acc + (curr.weight * Math.log(curr.weight)), 0);
     return Math.log(sum) - (sum_with_log / sum);
   }
   public get tile(): Tile {
     return this.cell as Tile;
   }
-  public propagate(tile: Tile, dir: string): boolean {
+  public propagate<T>(wfc: Wfc, tiles: Iterable<Tile>, pos: {
+    coord: Coordinate; dir: string;
+  }): boolean {
     if (!this.collapsed) {
       this.restorable = new Set<Tile>(this.cell as Set<Tile>);
+      let has_changed: boolean = false;
       for (const t of this.cell as Set<Tile>) {
-        if (!tile.constraints[dir].has(t)) {
-          (this.cell as Set<Tile>).delete(t);
+        for (const tile of tiles) {
+          if (!tile.constraints[pos.dir].has(t)) {
+            (this.cell as Set<Tile>).delete(t);
+            has_changed = true;
+          }
+        }
+      }
+      if (has_changed) {
+        for (const new_pos of get_valid_neighbours(
+                 wfc, pos.coord.x, pos.coord.y)) {
+          wfc.map.array[new_pos.coord.y][new_pos.coord.x].propagate(
+              wfc, this.cell as Set<Tile>, new_pos);
         }
       }
       if ((this.cell as Set<Tile>).size == 0) {
@@ -131,14 +144,16 @@ export interface Wfc {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   map: {
-    cell: { width: number, height: number },
+    cell: {width: number, height: number},
     width: number,
     height: number,
     array: Array<Array<Cell>>,
     size: number,
   };
   animated: boolean;
+  interactive: boolean;
   first: boolean;
+  key: {[name: string]: boolean}
 }
 
 function canvas_resize_handler(wfc: Wfc) {
@@ -149,87 +164,100 @@ function canvas_resize_handler(wfc: Wfc) {
 }
 
 export const init = ():
-  Wfc => {
-  const res: Wfc = {
-    first: true,
-    animated: false,
-    canvas: document.getElementById('canvas')! as HTMLCanvasElement,
-    ctx: (document.getElementById('canvas')! as HTMLCanvasElement)
-      .getContext('2d')!,
-    map: {
-      cell: { width: 0, height: 0 },
-      width: 10,
-      height: 10,
-      size: 10 * 10,
-      array: new Array<Array<Cell>>()
+    Wfc => {
+      const res: Wfc = {
+        first: true,
+        animated: false,
+        interactive: false,
+        canvas: document.getElementById('canvas')! as HTMLCanvasElement,
+        ctx: (document.getElementById('canvas')! as HTMLCanvasElement)
+                 .getContext('2d')!,
+        map: {
+          cell: {width: 0, height: 0},
+          width: 10,
+          height: 10,
+          size: 10 * 10,
+          array: new Array<Array<Cell>>()
+        },
+        key: {}
+      };
+      res.canvas.onresize = () => {
+        canvas_resize_handler(res);
+      };
+
+      const url = new URL(window.location.toLocaleString());
+      if (url.searchParams.has('width')) {
+        res.map.width = Number.parseInt(url.searchParams.get('width')!);
+      }
+      if (url.searchParams.has('height')) {
+        res.map.height = Number.parseInt(url.searchParams.get('height')!);
+      }
+      if (url.searchParams.has('anim')) {
+        res.animated = true;
+      }
+      if (url.searchParams.has('interactive')) {
+        res.interactive = true;
+      }
+
+      res.map.size = res.map.height * res.map.width;
+
+      res.map.array = Array.from(
+          {length: res.map.height},
+          (_, i): Array<Cell> =>
+              Array.from({length: res.map.width}, (): Cell => new Cell()));
+      canvas_resize_handler(res);
+      res.canvas.style.backgroundColor = 'black';
+      window.onkeydown = (e: KeyboardEvent) => {
+        console.log(e);
+        console.log(`Key: ${e.key}`);
+        res.key[e.key] = true;
+      };
+      window.onkeyup = (e: KeyboardEvent) => {
+        res.key[e.key] = false;
+      };
+      console.log(res);
+      return res;
     }
-  };
-  res.canvas.onresize = () => {
-    canvas_resize_handler(res);
-  };
-
-  const url = new URL(window.location.toLocaleString());
-  if (url.searchParams.has('width')) {
-    res.map.width = Number.parseInt(url.searchParams.get('width')!);
-  }
-  if (url.searchParams.has('height')) {
-    res.map.height = Number.parseInt(url.searchParams.get('height')!);
-  }
-  if (url.searchParams.has('anim')) {
-    res.animated = true;
-  }
-
-  res.map.size = res.map.height * res.map.width;
-
-  res.map.array = Array.from(
-    { length: res.map.height },
-    (_, i): Array<Cell> => Array.from(
-      { length: res.map.width }, (): Cell => new Cell()));
-  canvas_resize_handler(res);
-  res.canvas.style.backgroundColor = 'black';
-  console.log(res);
-  return res;
-}
 
 function get_valid_neighbours(wfc: Wfc, x: number, y: number): Array<{
   coord: Coordinate, dir: string
 }> {
-  const dirs = new Array<{ x: number, y: number, dir: string }>(
-    { x: -1, y: 0, dir: 'left' }, { x: 1, y: 0, dir: 'right' },
-    { x: 0, y: -1, dir: 'up' }, { x: 0, y: 1, dir: 'down' });
-  let res: Array<{ coord: Coordinate, dir: string }> =
-    new Array<{ coord: Coordinate, dir: string }>();
-  for (const { x: x_offset, y: y_offset, dir: dir } of dirs) {
+  const dirs = new Array<{x: number, y: number, dir: string}>(
+      {x: -1, y: 0, dir: 'left'}, {x: 1, y: 0, dir: 'right'},
+      {x: 0, y: -1, dir: 'up'}, {x: 0, y: 1, dir: 'down'});
+  let res: Array<{coord: Coordinate, dir: string}> =
+      new Array<{coord: Coordinate, dir: string}>();
+  for (const {x: x_offset, y: y_offset, dir: dir} of dirs) {
     const new_x = x + x_offset;
     const new_y = y + y_offset;
     if (0 <= new_x && new_x < wfc.map.width && 0 <= new_y &&
-      new_y < wfc.map.height) {
-      res.push({ coord: { x: new_x, y: new_y }, dir: dir });
+        new_y < wfc.map.height) {
+      res.push({coord: {x: new_x, y: new_y}, dir: dir});
     }
   }
   return res;
 }
 
-function collapse(wfc: Wfc, force: { x: number, y: number } | null = null): boolean {
+function collapse(
+    wfc: Wfc, force: {x: number, y: number}|null = null): boolean {
   if (wfc.map.size == 0) {
     return false;
   }
   wfc.map.size--;
-  let current_cell: Coordinate = { x: 0, y: 0 };
+  let current_cell: Coordinate = {x: 0, y: 0};
   if (force == null) {
     for (let y = 0; y < wfc.map.array.length; y++) {
       for (let x = 0; x < wfc.map.array[y].length; x++) {
         if ((wfc.map.array[current_cell.y][current_cell.x].is_collapsed()) ||
-          (!wfc.map.array[y][x].is_collapsed() &&
-            wfc.map.array[y][x].entropy <
-            wfc.map.array[current_cell.y][current_cell.x].entropy)) {
-          current_cell = { x: x, y: y };
+            (!wfc.map.array[y][x].is_collapsed() &&
+             wfc.map.array[y][x].entropy <
+                 wfc.map.array[current_cell.y][current_cell.x].entropy)) {
+          current_cell = {x: x, y: y};
         }
       }
     }
-  }
-  else {
-    current_cell = { x: force.x, y: force.y };
+  } else {
+    current_cell = {x: force.x, y: force.y};
   }
   if (!wfc.map.array[current_cell.y][current_cell.x].is_collapsed()) {
     wfc.map.array[current_cell.y][current_cell.x].collapse();
@@ -237,18 +265,9 @@ function collapse(wfc: Wfc, force: { x: number, y: number } | null = null): bool
       draw(wfc, current_cell.x, current_cell.y);
     }
     const curr: Tile = wfc.map.array[current_cell.y][current_cell.x].tile;
-    const processed: Array<Coordinate> = new Array<Coordinate>();
     for (const pos of get_valid_neighbours(
-      wfc, current_cell.x, current_cell.y)) {
-      if (wfc.map.array[pos.coord.y][pos.coord.x].propagate(curr, pos.dir)) {
-        processed.push(pos.coord);
-      } else {
-        wfc.map.array[current_cell.y][current_cell.x].restore();
-        for (const p of processed) {
-          wfc.map.array[p.y][p.x].restore();
-        }
-        break;
-      }
+             wfc, current_cell.x, current_cell.y)) {
+      wfc.map.array[pos.coord.y][pos.coord.x].propagate(wfc, [curr], pos);
     }
   }
   wfc.first = false;
@@ -265,29 +284,43 @@ function draw(wfc: Wfc, x: number, y: number) {
   }
   wfc.ctx.fillStyle = color;
   wfc.ctx.fillRect(
-    x * wfc.map.cell.width, y * wfc.map.cell.height, wfc.map.cell.width,
-    wfc.map.cell.height);
+      x * wfc.map.cell.width, y * wfc.map.cell.height, wfc.map.cell.width,
+      wfc.map.cell.height);
 }
 
-export const main = async (wfc: Wfc) => {
+export const main =
+    async (wfc: Wfc) => {
   wfc.canvas.onclick = (e: MouseEvent) => {
     const x = Math.floor(e.pageX / wfc.canvas.width * wfc.map.width);
     const y = Math.floor(e.pageY / wfc.canvas.height * wfc.map.height);
-    collapse(wfc, { x, y });
-    loop(wfc);
+    collapse(wfc, {x, y});
     wfc.canvas.onclick = null;
+    if (wfc.interactive) {
+      requestAnimationFrame(() => poll_state(wfc));
+    }
+    loop(wfc);
   };
+}
+
+function poll_state(wfc: Wfc) {
+  if (wfc.key['n']) {
+    loop(wfc);
+  }
+  if (wfc.interactive) {
+    requestAnimationFrame(() => poll_state(wfc));
+  }
 }
 
 function loop(wfc: Wfc) {
   while (collapse(wfc) && wfc.animated)
     ;
   if (!wfc.animated) {
-    wfc.map.array.forEach((c, y, _) => {
-      c.forEach((_, x, __) => {
-        draw(wfc, x, y);
-      })
-    })
+    wfc.map.array.forEach((c, y, _) => {c.forEach((_, x, __) => {
+                            draw(wfc, x, y);
+                          })})
   }
-  requestAnimationFrame(() => loop(wfc));
+  if (!wfc.interactive) {
+    poll_state(wfc);
+    requestAnimationFrame(() => loop(wfc));
+  }
 }
