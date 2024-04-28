@@ -1,4 +1,4 @@
-import {MAP_1_COLOR, MAP_1_HEIGHT} from './maps.ts';
+import {loadMap1Color, loadMap1Height} from './maps.ts';
 
 let current: number = 0;
 
@@ -61,7 +61,7 @@ export function VoxelSpaceInit(
       phi: 0,
       height: 50,
       horizon: 120,
-      scale_height: 120,
+      scale_height: 200,
       distance: 300,
       keys: {}
     }
@@ -198,15 +198,17 @@ async function loadMap(): Promise<VoxelSpaceMap> {
       });
     });
   } else {
+    const color: HTMLImageElement = await loadMap1Color();
+    const height: HTMLImageElement = await loadMap1Height();
     return new Promise((resolve) => {
       resolve({
-        color: {image: MAP_1_COLOR, data: loadImageData(MAP_1_COLOR)},
+        color: {image: color, data: loadImageData(color)},
         height: {
-          image: MAP_1_HEIGHT,
+          image: height,
           data: {
-            values: hightMapFromImageData(loadImageData(MAP_1_HEIGHT)),
-            width: MAP_1_HEIGHT.naturalWidth,
-            height: MAP_1_HEIGHT.naturalHeight
+            values: hightMapFromImageData(loadImageData(height)),
+            width: height.naturalWidth,
+            height: height.naturalHeight
           }
         }
       });
@@ -270,7 +272,7 @@ function render(state: VoxelSpace) {
   const sinPhi = Math.sin(state.state.phi);
   const cosPhi = Math.cos(state.state.phi);
 
-  const hbuffer = new Array<number>(state.framebuffer.canvas.width)
+  const hbuffer = new Float32Array(state.framebuffer.canvas.width)
                       .fill(state.framebuffer.canvas.height);
 
   let dz = 1.0;

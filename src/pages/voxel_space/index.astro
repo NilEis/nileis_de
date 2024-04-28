@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import map_1_color from "./images/1_color.png";
 import map_1_height from "./images/1_height.png";
 import "./style.css";
@@ -43,16 +42,16 @@ import "./style.css";
             <div class="tr">
                 <section class="map_table">
                     <div id="color">
-                        <Image
-                            src={map_1_color}
+                        <img
+                            src={map_1_color.src}
                             alt="Color map"
                             id="color_map"
                             loading="eager"
                         />
                     </div>
                     <div id="height">
-                        <Image
-                            src={map_1_height}
+                        <img
+                            src={map_1_height.src}
                             alt="Height map"
                             id="height_map"
                             loading="eager"
@@ -69,7 +68,6 @@ import "./style.css";
         </section>
         <script>
             import { main } from "./voxel_space.ts";
-            import type { VoxelSpace } from "./voxel_space.ts";
             main();
         </script>
     </body>

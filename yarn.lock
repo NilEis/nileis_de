@@ -92,7 +92,7 @@
     "@vitejs/plugin-react" "^4.2.1"
     ultrahtml "^1.5.3"
 
-"@astrojs/sitemap@^3.0.0":
+"@astrojs/sitemap@^3.1.4":
   version "3.1.4"
   resolved "https://registry.yarnpkg.com/@astrojs/sitemap/-/sitemap-3.1.4.tgz#9805bd69343572c9da2febd722cbca9797f66f94"
   integrity sha512-po8CqDCK14O6phU1mB5C8SyVLyQEa+7pJM8oXxs1mVh8DgvxxaA5E7lak1vzOmBcyyyHBW32jakGqNYc66sBRw==
