@@ -882,6 +882,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/stats.js@^0.17.3":
+  version "0.17.3"
+  resolved "https://registry.yarnpkg.com/@types/stats.js/-/stats.js-0.17.3.tgz#705446e12ce0fad618557dd88236f51148b7a935"
+  integrity sha512-pXNfAD3KHOdif9EQXZ9deK82HVNaXP5ZIF5RP2QG6OQFNTaY2YIetfrE9t528vEreGQvEPRDDc8muaoYeK0SxQ==
+
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-3.0.2.tgz#6dd61e43ef60b34086287f83683a5c1b2dc53d20"
@@ -3391,6 +3396,11 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
+
+stats.js@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/stats.js/-/stats.js-0.17.0.tgz#b1c3dc46d94498b578b7fd3985b81ace7131cc7d"
+  integrity sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==
 
 stdin-discarder@^0.2.1:
   version "0.2.2"

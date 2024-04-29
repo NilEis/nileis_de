@@ -1,4 +1,6 @@
-import {loadMap1Color, loadMap1Height} from './maps.ts';
+import Stats from 'stats.js';
+
+import {loadMap} from './maps';
 
 let current: number = 0;
 
@@ -15,6 +17,7 @@ interface Coord {
 ;
 
 interface GameState {
+  stats: Stats;
   pos: Coord;
   phi: number;
   height: number;
@@ -34,10 +37,7 @@ export interface VoxelSpaceMap {
 export interface VoxelSpace {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  framebuffer: {
-    canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D;
-    scaling_factor: number;
-  };
+  buffer: {img: ImageData; data: Uint32Array};
   map: VoxelSpaceMap;
   state: GameState;
 }
@@ -49,38 +49,37 @@ export function VoxelSpaceInit(
   const res: VoxelSpace = {
     canvas: canvas.elem,
     ctx: canvas.ctx,
-    framebuffer: {
-      canvas: document.createElement('canvas'),
-      ctx: document.createElement('canvas').getContext('2d') as
-          CanvasRenderingContext2D,
-      scaling_factor: 1,
+    buffer: {
+      img: canvas.ctx.createImageData(canvas.elem.width, canvas.elem.height),
+      data: new Uint32Array()
     },
     map: map,
     state: {
+      stats: new Stats(),
       pos: {x: 0, y: 0},
-      phi: 0,
+      phi: Math.PI,
       height: 50,
-      horizon: 120,
+      horizon: canvas.elem.height / 2,
       scale_height: 200,
-      distance: 300,
+      distance: 1024,
       keys: {}
     }
   };
+  res.state.stats.showPanel(0);
+  document.body.appendChild(res.state.stats.dom);
   canvas.elem.style.backgroundColor = 'black';
   res.ctx.imageSmoothingEnabled = false;
   res.canvas.style.imageRendering = 'crisp-edges';
-  res.framebuffer.ctx =
-      res.framebuffer.canvas.getContext('2d') as CanvasRenderingContext2D;
-  document.onresize = () => {
+  window.onresize = () => {
     const parent = res.canvas.parentNode as HTMLDivElement;
     res.canvas.width = parent.clientWidth;
     res.canvas.height = parent.clientHeight;
-    res.framebuffer.canvas.width =
-        res.canvas.width * res.framebuffer.scaling_factor;
-    res.framebuffer.canvas.height =
-        res.canvas.height * res.framebuffer.scaling_factor;
+    res.state.horizon = res.canvas.height / 2;
+    res.buffer.img =
+        res.ctx.createImageData(res.canvas.width, res.canvas.height);
+    res.buffer.data = new Uint32Array();
   };
-  document.onresize(new UIEvent('resize'));
+  window.onresize(new UIEvent('resize'));
   return res;
 }
 
@@ -89,7 +88,9 @@ export function main(): void {
   init().then(loop);
 }
 function loop(state: VoxelSpace) {
+  state.state.stats.begin();
   tick(state);
+  state.state.stats.end();
   current = requestAnimationFrame(() => loop(state));
 }
 
@@ -116,7 +117,6 @@ export async function init(): Promise<VoxelSpace> {
   };
   document.onkeydown = (e: KeyboardEvent) => {
     vs.state.keys[e.key] = true;
-    e.preventDefault();
   };
   document.onkeyup = (e: KeyboardEvent) => {
     vs.state.keys[e.key] = false;
@@ -126,12 +126,18 @@ export async function init(): Promise<VoxelSpace> {
 
 export function tick(state: VoxelSpace) {
   if (state.state.keys['w']) {
-    state.state.pos.y -= Math.cos(state.state.phi);
-    state.state.pos.x -= Math.sin(state.state.phi);
+    const offset:
+        Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
+    state.state.pos.x += offset.x;
+    state.state.pos.y += offset.y;
+    preventUnderground(state, offset);
   }
   if (state.state.keys['s']) {
-    state.state.pos.y += Math.cos(state.state.phi);
-    state.state.pos.x += Math.sin(state.state.phi);
+    const offset:
+        Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
+    state.state.pos.x -= offset.x;
+    state.state.pos.y -= offset.y;
+    preventUnderground(state, offset);
   }
   if (state.state.keys['a'] || state.state.keys['ArrowLeft']) {
     state.state.phi += 0.1;
@@ -141,112 +147,41 @@ export function tick(state: VoxelSpace) {
   }
   if (state.state.keys['e']) {
     state.state.height += 1;
+    preventUnderground(
+        state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
   }
   if (state.state.keys['q']) {
     state.state.height -= 1;
+    preventUnderground(
+        state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
   }
   if (state.state.keys['ArrowUp']) {
     state.state.horizon += 5;
+    if (state.state.horizon >= state.canvas.height) {
+      state.state.horizon = state.canvas.height - 1;
+    }
   }
   if (state.state.keys['ArrowDown']) {
     state.state.horizon -= 5;
-  }
-  render(state);
-}
-
-async function loadMap(): Promise<VoxelSpaceMap> {
-  const colorInput: HTMLInputElement =
-      document.getElementById('color_input') as HTMLInputElement;
-  const heightInput: HTMLInputElement =
-      document.getElementById('height_input') as HTMLInputElement;
-  if (colorInput.files!.length != 0 && heightInput.files!.length != 0) {
-    return new Promise(async (resolve) => {
-      const color = new Image();
-      const height = new Image();
-      let loaded: 0|1|2 = 0;
-
-      const color_reader: FileReader = new FileReader();
-      color_reader.onload = (e: ProgressEvent<FileReader>) => {
-        color.src = e.target!.result as string;
-        loaded++;
-      };
-
-      const height_reader: FileReader = new FileReader();
-      height_reader.onload = (e: ProgressEvent<FileReader>) => {
-        height.src = e.target!.result as string;
-        loaded++;
-      };
-
-      color_reader.readAsDataURL(colorInput.files![0]);
-      height_reader.readAsDataURL(heightInput.files![0]);
-
-      while (loaded < 2) {
-        await new Promise((resolve) => setTimeout(resolve, 1));
-      }
-
-      await Promise.all([color.decode(), height.decode()]);
-      resolve({
-        color: {image: color, data: loadImageData(color)},
-        height: {
-          image: height,
-          data: {
-            values: hightMapFromImageData(loadImageData(height)),
-            width: height.naturalWidth,
-            height: height.naturalHeight
-          }
-        }
-      });
-    });
-  } else {
-    const color: HTMLImageElement = await loadMap1Color();
-    const height: HTMLImageElement = await loadMap1Height();
-    return new Promise((resolve) => {
-      resolve({
-        color: {image: color, data: loadImageData(color)},
-        height: {
-          image: height,
-          data: {
-            values: hightMapFromImageData(loadImageData(height)),
-            width: height.naturalWidth,
-            height: height.naturalHeight
-          }
-        }
-      });
-    });
-  }
-}
-
-function loadImageData(image: HTMLImageElement): ImageData {
-  const canvas: HTMLCanvasElement = document.createElement('canvas');
-  const ctx: CanvasRenderingContext2D =
-      canvas.getContext('2d') as CanvasRenderingContext2D;
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
-  ctx.drawImage(image, 0, 0);
-  return ctx.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
-}
-
-function hightMapFromImageData(data: ImageData): Array<Float32Array> {
-  const res: Array<Float32Array> = new Array<Float32Array>(data.height);
-  for (let y = 0; y < data.height; y++) {
-    res[y] = new Float32Array(data.width);
-    for (let x = 0; x < data.width; x++) {
-      res[y][x] = 0;
-      res[y][x] += data.data[((y * data.width + x) * 4) + 0];
-      res[y][x] += data.data[((y * data.width + x) * 4) + 1];
-      res[y][x] += data.data[((y * data.width + x) * 4) + 2];
-      res[y][x] /= 3;
+    if (state.state.horizon < 0) {
+      state.state.horizon = 0;
     }
   }
-  return res;
+  state.buffer.data = new Uint32Array(state.buffer.img.data);
+  for (let i = 0; i < state.buffer.data.length; i++) {
+    state.buffer.data[i] = 0;
+  }
+  render(state);
+  state.buffer.img.data.set(state.buffer.data);
+  state.ctx.putImageData(state.buffer.img, 0, 0);
 }
 
 function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
   if (start.y < end.y) {
     return;
   }
-  if (start.y < 0) {
-    start.y = 0;
+  if (end.y < 0) {
+    end.y = 0;
   }
   const r =
       state.map.color.data
@@ -257,25 +192,25 @@ function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
   const b =
       state.map.color.data
           .data[((map_pos.y * state.map.color.data.width + map_pos.x) * 4) + 2];
-  state.framebuffer.ctx.strokeStyle = `rgb(${r},${g},${b})`;
-  state.framebuffer.ctx.beginPath();
-  state.framebuffer.ctx.moveTo(start.x, start.y);
-  state.framebuffer.ctx.lineTo(end.x, end.y);
-  state.framebuffer.ctx.stroke();
+  for (let y = Math.floor(start.y); y >= Math.floor(end.y); y--) {
+    const index = (y * state.canvas.width + start.x) * 4;
+    state.buffer.data[index + 0] = r;
+    state.buffer.data[index + 1] = g;
+    state.buffer.data[index + 2] = b;
+    state.buffer.data[index + 3] = 255;
+  }
 }
 
 function render(state: VoxelSpace) {
-  state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
-  state.framebuffer.ctx.clearRect(
-      0, 0, state.framebuffer.canvas.width, state.framebuffer.canvas.height);
+  const frameWidth: number = state.canvas.width;
+  const frameHeight: number = state.canvas.height;
   // precalculate viewing angle parameters
   const sinPhi = Math.sin(state.state.phi);
   const cosPhi = Math.cos(state.state.phi);
 
-  const hbuffer = new Float32Array(state.framebuffer.canvas.width)
-                      .fill(state.framebuffer.canvas.height);
+  const hbuffer = new Float32Array(frameWidth).fill(frameHeight);
 
-  let dz = 1.0;
+  let dz = 0.1;
   let z = 1.0;
   while (z < state.state.distance) {
     let pleft: Coord = {
@@ -290,18 +225,14 @@ function render(state: VoxelSpace) {
     const dx = (pright.x - pleft.x) / state.map.height.data.width;
     const dy = (pright.y - pleft.y) / state.map.height.data.width;
 
-    for (let i = 0; i < state.framebuffer.canvas.width; i++) {
+    for (let i = 0; i < frameWidth; i++) {
       const map_pos: Coord = {
         x: (Math.floor(pleft.x) + (state.map.height.data.width * 2)) %
             state.map.height.data.width,
         y: (Math.floor(pleft.y) + (state.map.height.data.height * 2)) %
             state.map.height.data.height,
       };
-      const height_on_screen =
-          (state.state.height -
-           state.map.height.data.values[map_pos.y][map_pos.x]) /
-              z * state.state.scale_height +
-          state.state.horizon;
+      const height_on_screen = getHeight(state, map_pos, z);
       drawLine(
           state, {x: i, y: hbuffer[i]}, {x: i, y: height_on_screen},
           {x: map_pos.x, y: map_pos.y});
@@ -312,8 +243,23 @@ function render(state: VoxelSpace) {
       pleft.y = pleft.y + dy;
     }
     z += dz;
-    dz += 0.2;
+    dz += 0.1;
   }
-  state.ctx.drawImage(
-      state.framebuffer.canvas, 0, 0, state.canvas.width, state.canvas.height);
+}
+function preventUnderground(state: VoxelSpace, offset: Coord) {
+  const map_height = state.map.height.data.values[(Math.floor(state.state.pos.y+(offset.y)) +
+    (state.map.height.data.height * 2)) %
+    state.map.height.data.height][(Math.floor(state.state.pos.x+(offset.x)) + (state.map.height.data.width * 2)) %
+    state.map.height.data.width];
+  const DISTANCE_TO_GROUND = 2;
+  if (map_height + DISTANCE_TO_GROUND >= state.state.height) {
+    state.state.height = map_height + DISTANCE_TO_GROUND;
+  }
+}
+
+function getHeight(state: VoxelSpace, map_pos: Coord, z: number) {
+  return (state.state.height -
+          state.map.height.data.values[map_pos.y][map_pos.x]) /
+      z * state.state.scale_height +
+      state.state.horizon;
 }
