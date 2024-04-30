@@ -291,8 +291,8 @@ function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
 }
 
 function render(state: VoxelSpace) {
-  const frameWidth: number = state.canvas.width;
-  const frameHeight: number = state.canvas.height;
+  const frameWidth: number = state.buffer.img.width;
+  const frameHeight: number = state.buffer.img.height;
   // precalculate viewing angle parameters
   const sinPhi = Math.sin(state.state.phi);
   const cosPhi = Math.cos(state.state.phi);
