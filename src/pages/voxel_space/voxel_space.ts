@@ -318,9 +318,15 @@ function render(state: VoxelSpace) {
 
     for (let i = 0; i < frameWidth; i++) {
       const map_pos: Coord = {
-        x: (Math.floor(pleft.x) + (state.map.height.data.width * 5.0)) %
+        x: (Math.floor(pleft.x) +
+            (state.map.height.data.width *
+             (Math.abs(Math.floor(pleft.x / state.map.height.data.width)) +
+              1))) %
             state.map.height.data.width,
-        y: (Math.floor(pleft.y) + (state.map.height.data.height * 5.0)) %
+        y: (Math.floor(pleft.y) +
+            (state.map.height.data.height *
+             (Math.abs(Math.floor(pleft.y / state.map.height.data.height)) +
+              1))) %
             state.map.height.data.height,
       };
       const height_on_screen = getHeight(state, map_pos, z);
@@ -337,7 +343,6 @@ function render(state: VoxelSpace) {
     dz += 0.1;
   }
 }
-
 function preventUnderground(state: VoxelSpace, offset: Coord) {
   const map_height = state.map.height.data.values[(Math.floor(state.state.pos.y+(offset.y)) +
     (state.map.height.data.height * 2)) %

@@ -1,36 +1,66 @@
 import map_1_color_meta from './images/1_color.png';
 import map_1_height_meta from './images/1_height.png';
-import type { VoxelSpaceMap } from './voxel_space';
+import type {VoxelSpaceMap} from './voxel_space';
 
-export async function loadMap1Color(): Promise<HTMLImageElement> {
+export async function loadMap1Color(size: {w: number, h: number}|null = null):
+    Promise<HTMLImageElement> {
   const MAP_1_COLOR: HTMLImageElement = new Image(
       map_1_color_meta.width,
       map_1_color_meta.height,
   );
-  return new Promise((resolve) => {
+  await new Promise((resolve) => {
     MAP_1_COLOR.src = map_1_color_meta.src;
     MAP_1_COLOR.onload = () => resolve(MAP_1_COLOR);
   });
+  if (size == null) {
+    return new Promise((resolve) => resolve(MAP_1_COLOR));
+  }
+  return new Promise((resolve) => {
+    const canvas: HTMLCanvasElement = document.createElement('canvas');
+    const ctx: CanvasRenderingContext2D =
+        canvas.getContext('2d') as CanvasRenderingContext2D;
+    MAP_1_COLOR.onload = () => resolve(MAP_1_COLOR);
+    canvas.width = size.w;
+    canvas.height = size.h;
+    ctx.drawImage(MAP_1_COLOR, 0, 0, size.w, size.h);
+    MAP_1_COLOR.src = canvas.toDataURL();
+  });
 }
 
-export async function loadMap1Height(): Promise<HTMLImageElement> {
+export async function loadMap1Height(size: {w: number, h: number}|null = null):
+    Promise<HTMLImageElement> {
   const MAP_1_HEIGHT: HTMLImageElement = new Image(
       map_1_height_meta.width,
       map_1_height_meta.height,
   );
-  return new Promise((resolve) => {
+  await new Promise((resolve) => {
     MAP_1_HEIGHT.src = map_1_height_meta.src;
     MAP_1_HEIGHT.onload = () => resolve(MAP_1_HEIGHT);
   });
+  if (size == null) {
+    return new Promise((resolve) => resolve(MAP_1_HEIGHT));
+  }
+  return new Promise((resolve) => {
+    const canvas: HTMLCanvasElement = document.createElement('canvas');
+    const ctx: CanvasRenderingContext2D =
+        canvas.getContext('2d') as CanvasRenderingContext2D;
+    MAP_1_HEIGHT.onload = () => resolve(MAP_1_HEIGHT);
+    canvas.width = size.w;
+    canvas.height = size.h;
+    ctx.drawImage(MAP_1_HEIGHT, 0, 0, size.w, size.h);
+    MAP_1_HEIGHT.src = canvas.toDataURL();
+  });
 }
 
-export async function loadMap(): Promise<VoxelSpaceMap> {
+export async function loadMap(size: {w: number, h: number}|null = null):
+    Promise<VoxelSpaceMap> {
   const colorInput: HTMLInputElement =
       document.getElementById('color_input') as HTMLInputElement;
   const heightInput: HTMLInputElement =
       document.getElementById('height_input') as HTMLInputElement;
-  if (colorInput.files!.length != 0 && heightInput.files!.length != 0) {
-    return new Promise(async (resolve) => {
+  let res: VoxelSpaceMap;
+  return new Promise(async (resolve) => {
+    if (colorInput.files!.length != 0 && heightInput.files!.length != 0) {
       const color = new Image();
       const height = new Image();
       let loaded: 0|1|2 = 0;
@@ -53,6 +83,17 @@ export async function loadMap(): Promise<VoxelSpaceMap> {
       while (loaded < 2) {
         await new Promise((resolve) => setTimeout(resolve, 1));
       }
+      if (size != null) {
+        const canvas: HTMLCanvasElement = document.createElement('canvas');
+        const ctx: CanvasRenderingContext2D =
+            canvas.getContext('2d') as CanvasRenderingContext2D;
+        canvas.width = size.w;
+        canvas.height = size.h;
+        ctx.drawImage(color, 0, 0, size.w, size.h);
+        color.src = canvas.toDataURL();
+        ctx.drawImage(height, 0, 0, size.w, size.h);
+        height.src = canvas.toDataURL();
+      }
 
       await Promise.all([color.decode(), height.decode()]);
       resolve({
@@ -66,12 +107,10 @@ export async function loadMap(): Promise<VoxelSpaceMap> {
           }
         }
       });
-    });
-  } else {
-    const color: HTMLImageElement = await loadMap1Color();
-    const height: HTMLImageElement = await loadMap1Height();
-    return new Promise((resolve) => {
-      resolve({
+    } else {
+      const color: HTMLImageElement = await loadMap1Color(size);
+      const height: HTMLImageElement = await loadMap1Height(size);
+      res = {
         color: {image: color, data: loadImageData(color)},
         height: {
           image: height,
@@ -81,9 +120,10 @@ export async function loadMap(): Promise<VoxelSpaceMap> {
             height: height.naturalHeight
           }
         }
-      });
-    });
-  }
+      };
+    }
+    resolve(res);
+  });
 }
 
 function loadImageData(image: HTMLImageElement): ImageData {
