@@ -25,6 +25,10 @@ interface GameState {
   scale_height: number;
   distance: number;
   keys: {[key: string]: boolean};
+  mouse: {
+    pos: Coord; up: boolean; down: boolean; move: boolean; left: boolean;
+    right: boolean
+  };
 }
 ;
 
@@ -37,6 +41,7 @@ export interface VoxelSpaceMap {
 export interface VoxelSpace {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  rect: DOMRect;
   buffer: {img: ImageData; data: Uint32Array};
   map: VoxelSpaceMap;
   state: GameState;
@@ -49,6 +54,7 @@ export function VoxelSpaceInit(
   const res: VoxelSpace = {
     canvas: canvas.elem,
     ctx: canvas.ctx,
+    rect: canvas.elem.getBoundingClientRect(),
     buffer: {
       img: canvas.ctx.createImageData(canvas.elem.width, canvas.elem.height),
       data: new Uint32Array()
@@ -62,7 +68,15 @@ export function VoxelSpaceInit(
       horizon: canvas.elem.height / 2,
       scale_height: 200,
       distance: 1024,
-      keys: {}
+      keys: {},
+      mouse: {
+        pos: {x: 0, y: 0},
+        up: false,
+        down: false,
+        move: false,
+        left: false,
+        right: false
+      }
     }
   };
   res.state.stats.showPanel(0);
@@ -78,8 +92,41 @@ export function VoxelSpaceInit(
     res.buffer.img =
         res.ctx.createImageData(res.canvas.width, res.canvas.height);
     res.buffer.data = new Uint32Array();
+    res.rect = res.canvas.getBoundingClientRect();
   };
   window.onresize(new UIEvent('resize'));
+
+  res.canvas.onmousedown = (e: MouseEvent) => {
+    const x = e.clientX - res.rect.left;
+    const y = e.clientY - res.rect.top;
+    handleMouse(res, {click: true, x: x, y: y})
+  };
+  res.canvas.onmousemove = (e: MouseEvent) => {
+    const x = e.clientX - res.rect.left;
+    const y = e.clientY - res.rect.top;
+    handleMouse(res, {click: undefined, x: x, y: y})
+  };
+  res.canvas.onmouseup = (e: MouseEvent) => {
+    const x = e.clientX - res.rect.left;
+    const y = e.clientY - res.rect.top;
+    handleMouse(res, {click: false, x: x, y: y})
+  };
+
+  res.canvas.ontouchstart = (e: TouchEvent) => {
+    const x = e.touches[0].clientX - res.rect.left;
+    const y = e.touches[0].clientY - res.rect.top;
+    handleMouse(res, {click: true, x: x, y: y})
+  };
+  res.canvas.ontouchmove = (e: TouchEvent) => {
+    const x = e.touches[0].clientX - res.rect.left;
+    const y = e.touches[0].clientY - res.rect.top;
+    handleMouse(res, {click: undefined, x: x, y: y})
+  };
+  res.canvas.ontouchend = (e: TouchEvent) => {
+    const x = e.touches[0].clientX - res.rect.left;
+    const y = e.touches[0].clientY - res.rect.top;
+    handleMouse(res, {click: false, x: x, y: y})
+  };
   return res;
 }
 
@@ -125,47 +172,31 @@ export async function init(): Promise<VoxelSpace> {
 }
 
 export function tick(state: VoxelSpace) {
-  if (state.state.keys['w']) {
-    const offset:
-        Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
-    state.state.pos.x += offset.x;
-    state.state.pos.y += offset.y;
-    preventUnderground(state, offset);
+  if (state.state.keys['w'] || state.state.mouse.move) {
+    moveForward(state);
   }
   if (state.state.keys['s']) {
-    const offset:
-        Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
-    state.state.pos.x -= offset.x;
-    state.state.pos.y -= offset.y;
-    preventUnderground(state, offset);
+    moveBackward(state);
   }
-  if (state.state.keys['a'] || state.state.keys['ArrowLeft']) {
-    state.state.phi += 0.1;
+  if (state.state.keys['a'] || state.state.keys['ArrowLeft'] ||
+      state.state.mouse.left) {
+    turnLeft(state);
   }
-  if (state.state.keys['d'] || state.state.keys['ArrowRight']) {
-    state.state.phi -= 0.1;
+  if (state.state.keys['d'] || state.state.keys['ArrowRight'] ||
+      state.state.mouse.right) {
+    turnRight(state);
   }
   if (state.state.keys['e']) {
-    state.state.height += 1;
-    preventUnderground(
-        state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
+    ascend(state);
   }
   if (state.state.keys['q']) {
-    state.state.height -= 1;
-    preventUnderground(
-        state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
+    descend(state);
   }
-  if (state.state.keys['ArrowUp']) {
-    state.state.horizon += 5;
-    if (state.state.horizon >= state.canvas.height) {
-      state.state.horizon = state.canvas.height - 1;
-    }
+  if (state.state.keys['ArrowUp'] || state.state.mouse.up) {
+    lookUp(state);
   }
-  if (state.state.keys['ArrowDown']) {
-    state.state.horizon -= 5;
-    if (state.state.horizon < 0) {
-      state.state.horizon = 0;
-    }
+  if (state.state.keys['ArrowDown'] || state.state.mouse.down) {
+    lookDown(state);
   }
   state.buffer.data = new Uint32Array(state.buffer.img.data);
   for (let i = 0; i < state.buffer.data.length; i++) {
@@ -174,6 +205,56 @@ export function tick(state: VoxelSpace) {
   render(state);
   state.buffer.img.data.set(state.buffer.data);
   state.ctx.putImageData(state.buffer.img, 0, 0);
+}
+
+function lookDown(state: VoxelSpace) {
+  state.state.horizon -= 5;
+  if (state.state.horizon < 0) {
+    state.state.horizon = 0;
+  }
+}
+
+function lookUp(state: VoxelSpace) {
+  state.state.horizon += 5;
+  if (state.state.horizon >= state.canvas.height) {
+    state.state.horizon = state.canvas.height - 1;
+  }
+}
+
+function descend(state: VoxelSpace) {
+  state.state.height -= 1;
+  preventUnderground(
+      state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
+}
+
+function ascend(state: VoxelSpace) {
+  state.state.height += 1;
+  preventUnderground(
+      state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
+}
+
+function turnRight(state: VoxelSpace) {
+  state.state.phi -= 0.1;
+}
+
+function turnLeft(state: VoxelSpace) {
+  state.state.phi += 0.1;
+}
+
+function moveBackward(state: VoxelSpace) {
+  const offset:
+      Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
+  state.state.pos.x -= offset.x;
+  state.state.pos.y -= offset.y;
+  preventUnderground(state, offset);
+}
+
+function moveForward(state: VoxelSpace) {
+  const offset:
+      Coord = {x: -Math.sin(state.state.phi), y: -Math.cos(state.state.phi)};
+  state.state.pos.x += offset.x;
+  state.state.pos.y += offset.y;
+  preventUnderground(state, offset);
 }
 
 function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
@@ -262,4 +343,36 @@ function getHeight(state: VoxelSpace, map_pos: Coord, z: number) {
           state.map.height.data.values[map_pos.y][map_pos.x]) /
       z * state.state.scale_height +
       state.state.horizon;
+}
+
+function handleMouse(
+    state: VoxelSpace, e: {click: boolean|undefined, x: number, y: number}) {
+  if (e.click !== undefined && e.click) {
+    state.state.mouse.down = true;
+    state.state.mouse.move = true;
+  } else if (e.click !== undefined && !e.click) {
+    state.state.mouse.down = false;
+    state.state.mouse.move = false;
+  }
+  if (e.click !== undefined && e.click) {
+    if (e.x <= state.canvas.width / 4.0) {
+      state.state.mouse.left = true;
+    } else if (e.x >= state.canvas.width * 0.75) {
+      state.state.mouse.right = true;
+    } else {
+      state.state.mouse.left = false;
+      state.state.mouse.right = false;
+    }
+
+    if (e.y <= state.canvas.height / 4.0) {
+      state.state.mouse.up = true;
+    } else if (e.y >= state.canvas.height * 0.75) {
+      state.state.mouse.down = true;
+    } else {
+      state.state.mouse.up = false;
+      state.state.mouse.down = false;
+    }
+  }
+  state.state.mouse.pos.x = e.x;
+  state.state.mouse.pos.y = e.y;
 }
