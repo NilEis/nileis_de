@@ -27,7 +27,8 @@ interface GameState {
   keys: {[key: string]: boolean};
   mouse: {
     pos: Coord; up: boolean; down: boolean; move: boolean; left: boolean;
-    right: boolean
+    right: boolean;
+    click: boolean;
   };
 }
 ;
@@ -75,7 +76,8 @@ export function VoxelSpaceInit(
         down: false,
         move: false,
         left: false,
-        right: false
+        right: false,
+        click: false
       }
     }
   };
@@ -180,11 +182,11 @@ export function tick(state: VoxelSpace) {
   }
   if (state.state.keys['a'] || state.state.keys['ArrowLeft'] ||
       state.state.mouse.left) {
-    turnLeft(state);
+    turnLeft(state, state.state.mouse.click ? 0.1 : 1.0);
   }
   if (state.state.keys['d'] || state.state.keys['ArrowRight'] ||
       state.state.mouse.right) {
-    turnRight(state);
+    turnRight(state, state.state.mouse.click ? 0.1 : 1.0);
   }
   if (state.state.keys['e']) {
     ascend(state);
@@ -194,9 +196,15 @@ export function tick(state: VoxelSpace) {
   }
   if (state.state.keys['ArrowUp'] || state.state.mouse.up) {
     lookUp(state);
+    if (state.state.mouse.click) {
+      ascend(state, 0.5);
+    }
   }
   if (state.state.keys['ArrowDown'] || state.state.mouse.down) {
     lookDown(state);
+    if (state.state.mouse.click) {
+      descend(state, 0.5);
+    }
   }
   state.buffer.data = new Uint32Array(state.buffer.img.data);
   for (let i = 0; i < state.buffer.data.length; i++) {
@@ -221,24 +229,24 @@ function lookUp(state: VoxelSpace) {
   }
 }
 
-function descend(state: VoxelSpace) {
-  state.state.height -= 1;
+function descend(state: VoxelSpace, prescaler: number = 1.0) {
+  state.state.height -= 1 * prescaler;
   preventUnderground(
       state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
 }
 
-function ascend(state: VoxelSpace) {
-  state.state.height += 1;
+function ascend(state: VoxelSpace, prescaler: number = 1.0) {
+  state.state.height += 1 * prescaler;
   preventUnderground(
       state, {x: -Math.cos(state.state.phi), y: -Math.sin(state.state.phi)});
 }
 
-function turnRight(state: VoxelSpace) {
-  state.state.phi -= 0.1;
+function turnRight(state: VoxelSpace, prescaler: number = 1.0) {
+  state.state.phi -= 0.1 * prescaler;
 }
 
-function turnLeft(state: VoxelSpace) {
-  state.state.phi += 0.1;
+function turnLeft(state: VoxelSpace, prescaler: number = 1.0) {
+  state.state.phi += 0.1 * prescaler;
 }
 
 function moveBackward(state: VoxelSpace) {
@@ -348,30 +356,41 @@ function getHeight(state: VoxelSpace, map_pos: Coord, z: number) {
 function handleMouse(
     state: VoxelSpace, e: {click: boolean|undefined, x: number, y: number}) {
   if (e.click !== undefined && e.click) {
-    state.state.mouse.down = true;
-    state.state.mouse.move = true;
+    state.state.mouse.click = true;
   } else if (e.click !== undefined && !e.click) {
-    state.state.mouse.down = false;
-    state.state.mouse.move = false;
+    state.state.mouse.click = false;
   }
-  if (e.click !== undefined && e.click) {
-    if (e.x <= state.canvas.width / 4.0) {
+  if (state.state.mouse.click) {
+    state.state.mouse.click = true;
+    state.state.mouse.move = true;
+    if (e.x <= state.canvas.width * 0.25) {
       state.state.mouse.left = true;
+      state.state.mouse.right = false;
     } else if (e.x >= state.canvas.width * 0.75) {
+      state.state.mouse.left = false;
       state.state.mouse.right = true;
     } else {
       state.state.mouse.left = false;
       state.state.mouse.right = false;
     }
 
-    if (e.y <= state.canvas.height / 4.0) {
+    if (e.y <= state.canvas.height * 0.25) {
       state.state.mouse.up = true;
+      state.state.mouse.down = false;
     } else if (e.y >= state.canvas.height * 0.75) {
+      state.state.mouse.up = false;
       state.state.mouse.down = true;
     } else {
       state.state.mouse.up = false;
       state.state.mouse.down = false;
     }
+  } else if (!state.state.mouse.click) {
+    state.state.mouse.down = false;
+    state.state.mouse.move = false;
+    state.state.mouse.left = false;
+    state.state.mouse.right = false;
+    state.state.mouse.up = false;
+    state.state.mouse.down = false;
   }
   state.state.mouse.pos.x = e.x;
   state.state.mouse.pos.y = e.y;
