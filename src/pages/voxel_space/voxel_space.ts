@@ -68,7 +68,7 @@ export function VoxelSpaceInit(
       height: 50,
       horizon: canvas.elem.height / 2,
       scale_height: 200,
-      distance: 1024,
+      distance: 1048,
       keys: {},
       mouse: {
         pos: {x: 0, y: 0},
@@ -243,10 +243,12 @@ function ascend(state: VoxelSpace, prescaler: number = 1.0) {
 
 function turnRight(state: VoxelSpace, prescaler: number = 1.0) {
   state.state.phi -= 0.1 * prescaler;
+  console.log(state.state.phi);
 }
 
 function turnLeft(state: VoxelSpace, prescaler: number = 1.0) {
   state.state.phi += 0.1 * prescaler;
+  console.log(state.state.phi);
 }
 
 function moveBackward(state: VoxelSpace) {
@@ -311,14 +313,14 @@ function render(state: VoxelSpace) {
       y: (-sinPhi * z - cosPhi * z) + state.state.pos.y
     };
 
-    const dx = (pright.x - pleft.x) / state.map.height.data.width;
-    const dy = (pright.y - pleft.y) / state.map.height.data.width;
+    const dx = (pright.x - pleft.x) / frameWidth;
+    const dy = (pright.y - pleft.y) / frameHeight;
 
     for (let i = 0; i < frameWidth; i++) {
       const map_pos: Coord = {
-        x: (Math.floor(pleft.x) + (state.map.height.data.width * 2)) %
+        x: (Math.floor(pleft.x) + (state.map.height.data.width * 5.0)) %
             state.map.height.data.width,
-        y: (Math.floor(pleft.y) + (state.map.height.data.height * 2)) %
+        y: (Math.floor(pleft.y) + (state.map.height.data.height * 5.0)) %
             state.map.height.data.height,
       };
       const height_on_screen = getHeight(state, map_pos, z);
@@ -335,6 +337,7 @@ function render(state: VoxelSpace) {
     dz += 0.1;
   }
 }
+
 function preventUnderground(state: VoxelSpace, offset: Coord) {
   const map_height = state.map.height.data.values[(Math.floor(state.state.pos.y+(offset.y)) +
     (state.map.height.data.height * 2)) %
