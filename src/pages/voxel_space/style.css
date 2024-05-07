@@ -72,12 +72,12 @@ body {
     grid-area: height;
 }
 
-#color_map {
+.color_map {
     width: 100%;
     height: 100%;
 }
 
-#height_map {
+.height_map {
     width: 100%;
     height: 100%;
 }

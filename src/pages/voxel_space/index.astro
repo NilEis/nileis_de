@@ -41,21 +41,33 @@ import "./style.css";
             </div>
             <div class="tr">
                 <section class="map_table">
-                    <div id="color">
+                    <div id="color" style="position: relative;">
                         <img
                             src={map_1_color.src}
                             alt="Color map"
+                            class="color_map"
                             id="color_map"
                             loading="eager"
+                            style="z-index: 0;position: absolute; left: 0; top: 0;"
                         />
+                        <canvas
+                            id="color_map_canvas"
+                            style="z-index: 1;position: absolute; left: 0; top: 0;"
+                            class="color_map"></canvas>
                     </div>
-                    <div id="height">
+                    <div id="height" style="position: relative;">
                         <img
                             src={map_1_height.src}
                             alt="Height map"
+                            class="height_map"
                             id="height_map"
                             loading="eager"
+                            style="z-index: 0;position: absolute; left: 0; top: 0;"
                         />
+                        <canvas
+                            id="height_map_canvas"
+                            style="z-index: 1;position: absolute; left: 0; top: 0;"
+                            class="height_map"></canvas>
                     </div>
                 </section>
             </div>

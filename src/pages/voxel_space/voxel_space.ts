@@ -33,9 +33,16 @@ interface GameState {
 }
 ;
 
+interface ImageOverlay {
+  ctx: {color: CanvasRenderingContext2D; height: CanvasRenderingContext2D;};
+  buffer: {img: ImageData; data: Uint32Array};
+}
+;
+
 export interface VoxelSpaceMap {
   color: {image: HTMLImageElement, data: ImageData};
   height: {image: HTMLImageElement, data: HeightMap};
+  data: ImageData;
 }
 ;
 
@@ -46,12 +53,16 @@ export interface VoxelSpace {
   buffer: {img: ImageData; data: Uint32Array};
   map: VoxelSpaceMap;
   state: GameState;
+  maps: ImageOverlay;
 }
 ;
 
 export function VoxelSpaceInit(
     canvas: {elem: HTMLCanvasElement, ctx: CanvasRenderingContext2D},
-    map: VoxelSpaceMap): VoxelSpace {
+    map: VoxelSpaceMap,
+    maps_ctx:
+        {color: CanvasRenderingContext2D, height: CanvasRenderingContext2D}):
+    VoxelSpace {
   const res: VoxelSpace = {
     canvas: canvas.elem,
     ctx: canvas.ctx,
@@ -63,12 +74,12 @@ export function VoxelSpaceInit(
     map: map,
     state: {
       stats: new Stats(),
-      pos: {x: 0, y: 0},
+      pos: {x: 500, y: 500},
       phi: Math.PI,
       height: 50,
       horizon: canvas.elem.height / 2,
       scale_height: 200,
-      distance: 1048,
+      distance: 250,
       keys: {},
       mouse: {
         pos: {x: 0, y: 0},
@@ -78,7 +89,15 @@ export function VoxelSpaceInit(
         left: false,
         right: false,
         click: false
-      }
+      },
+    },
+    maps: {
+      ctx: {color: maps_ctx.color, height: maps_ctx.height},
+      buffer: {
+        img: maps_ctx.height.createImageData(
+            maps_ctx.height.canvas.width, maps_ctx.height.canvas.height),
+        data: new Uint32Array()
+      },
     }
   };
   res.state.stats.showPanel(0);
@@ -95,6 +114,13 @@ export function VoxelSpaceInit(
         res.ctx.createImageData(res.canvas.width, res.canvas.height);
     res.buffer.data = new Uint32Array();
     res.rect = res.canvas.getBoundingClientRect();
+    for (const elem of Object.values(res.maps.ctx) as
+         CanvasRenderingContext2D[]) {
+      elem.canvas.width = elem.canvas.parentElement!.clientWidth;
+      elem.canvas.height = elem.canvas.parentElement!.clientHeight;
+    }
+    res.maps.buffer.img = res.maps.ctx.height.createImageData(
+        res.maps.ctx.height.canvas.width, res.maps.ctx.height.canvas.height);
   };
   window.onresize(new UIEvent('resize'));
 
@@ -155,7 +181,14 @@ export async function init(): Promise<VoxelSpace> {
       document.getElementById('height_map') as HTMLImageElement;
   color_map_view.src = map.color.image.src;
   height_map_view.src = map.height.image.src;
-  const vs: VoxelSpace = VoxelSpaceInit({elem: canvas, ctx: ctx}, map);
+  const maps_ctx = {
+    color: (document.getElementById('color_map_canvas') as HTMLCanvasElement)
+               .getContext('2d') as CanvasRenderingContext2D,
+    height: (document.getElementById('height_map_canvas') as HTMLCanvasElement)
+                .getContext('2d') as CanvasRenderingContext2D
+  };
+  const vs: VoxelSpace =
+      VoxelSpaceInit({elem: canvas, ctx: ctx}, map, maps_ctx);
   (document.getElementById('loadBtn') as HTMLButtonElement).onclick = () => {
     main();
   };
@@ -210,9 +243,19 @@ export function tick(state: VoxelSpace) {
   for (let i = 0; i < state.buffer.data.length; i++) {
     state.buffer.data[i] = 0;
   }
+  state.maps.buffer.data = new Uint32Array(state.maps.buffer.img.data);
+  for (let i = 0; i < state.maps.buffer.data.length; i++) {
+    state.maps.buffer.data[i] = 0;
+  }
+
   render(state);
+
   state.buffer.img.data.set(state.buffer.data);
   state.ctx.putImageData(state.buffer.img, 0, 0);
+
+  state.maps.buffer.img.data.set(state.maps.buffer.data);
+  state.maps.ctx.height.putImageData(state.maps.buffer.img, 0, 0);
+  state.maps.ctx.color.putImageData(state.maps.buffer.img, 0, 0);
 }
 
 function lookDown(state: VoxelSpace) {
@@ -268,6 +311,17 @@ function moveForward(state: VoxelSpace) {
 }
 
 function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
+  const mapx = (map_pos.x / state.map.color.data.width) *
+      state.maps.ctx.color.canvas.width;
+  const mapy = (map_pos.y / state.map.color.data.height) *
+      state.maps.ctx.color.canvas.height;
+  const map_index =
+      (Math.floor(mapy) * state.maps.ctx.color.canvas.width + Math.floor(mapx))*4;
+  state.maps.buffer.data[map_index + 0] = 255;
+  state.maps.buffer.data[map_index + 1] = 255;
+  state.maps.buffer.data[map_index + 2] = 255;
+  state.maps.buffer.data[map_index + 3] = 255;
+
   if (start.y < end.y) {
     return;
   }
