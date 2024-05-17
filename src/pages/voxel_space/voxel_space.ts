@@ -368,7 +368,7 @@ function render(state: VoxelSpace) {
     };
 
     const dx = (pright.x - pleft.x) / frameWidth;
-    const dy = (pright.y - pleft.y) / frameHeight;
+    const dy = (pright.y - pleft.y) / frameWidth;
 
     for (let i = 0; i < frameWidth; i++) {
       const map_pos: Coord = {
