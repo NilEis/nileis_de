@@ -22,6 +22,9 @@ body {
 
 .tm {
     grid-area: tm;
+    display: flex;
+    justify-content: center;
+    background-color: black;
 }
 
 .tr {

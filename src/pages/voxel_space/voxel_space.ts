@@ -107,8 +107,9 @@ export function VoxelSpaceInit(
   res.canvas.style.imageRendering = 'crisp-edges';
   window.onresize = () => {
     const parent = res.canvas.parentNode as HTMLDivElement;
-    res.canvas.width = parent.clientWidth;
-    res.canvas.height = parent.clientHeight;
+    const new_size = Math.min(parent.clientWidth, parent.clientHeight);
+    res.canvas.width = new_size;
+    res.canvas.height = new_size;
     res.state.horizon = res.canvas.height / 2;
     res.buffer.img =
         res.ctx.createImageData(res.canvas.width, res.canvas.height);
