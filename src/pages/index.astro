@@ -31,7 +31,7 @@
             const hash_elem: HTMLElement = document.getElementById("hash")!;
             hash_elem.innerText =
                 "hash: " +
-                (await fetch("api/version.json").then((res: Response) =>
+                (await fetch("api/version").then((res: Response) =>
                     res
                         .json()
                         .then(
