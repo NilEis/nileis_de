@@ -14,6 +14,7 @@ const version: VersionResult = {
 };
 
 export const GET: APIRoute = ({params, request}) => {
-  return new Response(
-      JSON.stringify(version), {headers: {'content-type': 'application/json'}});
+  const headers: Headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+  return new Response(JSON.stringify(version), {headers: headers});
 }
