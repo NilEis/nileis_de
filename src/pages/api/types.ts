@@ -1,0 +1,1 @@
+export type VersionResult = {hash: string, name: string} ;

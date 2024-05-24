@@ -18,8 +18,24 @@
         <br />
         <a href="wfc/index.html">Wave function collapse</a>
         <br />
-        <a href="voxel_space/index.html">Voxel space</a> (<a href="voxel_space/wasm/index.html">in wasm</a>)
+        <a href="voxel_space/index.html">Voxel space</a> (<a
+            href="voxel_space/wasm/index.html">in wasm</a
+        >)
         <br />
         <a href="lua_wasm/index.html">lua</a>
+        <br />
+        <br />
+        <code id="hash">hash</code>
+        <script>
+            import type { VersionResult } from './api/types';
+            window.onload = async () => {
+                const hash_elem: HTMLElement = document.getElementById("hash")!;
+                hash_elem.innerText =
+                    "hash: " +
+                    (await fetch("api/version.json").then((res:Response) =>
+                        res.json().then((obj:VersionResult) => `${obj.hash} - ${obj.name}`),
+                    ));
+            };
+        </script>
     </body>
 </html>
