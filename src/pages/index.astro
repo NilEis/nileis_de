@@ -27,15 +27,17 @@
         <br />
         <code id="hash">hash</code>
         <script>
-            import type { VersionResult } from './api/types';
-            window.onload = async () => {
-                const hash_elem: HTMLElement = document.getElementById("hash")!;
-                hash_elem.innerText =
-                    "hash: " +
-                    (await fetch("api/version.json").then((res:Response) =>
-                        res.json().then((obj:VersionResult) => `${obj.hash} - ${obj.name}`),
-                    ));
-            };
+            import type { VersionResult } from "./api/types";
+            const hash_elem: HTMLElement = document.getElementById("hash")!;
+            hash_elem.innerText =
+                "hash: " +
+                (await fetch("api/version.json").then((res: Response) =>
+                    res
+                        .json()
+                        .then(
+                            (obj: VersionResult) => `${obj.hash} - ${obj.name}`,
+                        ),
+                ));
         </script>
     </body>
 </html>
