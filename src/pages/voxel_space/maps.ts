@@ -1,5 +1,5 @@
-import map_1_color_meta from './images/1_color.png';
-import map_1_height_meta from './images/1_height.png';
+import map_1_color_meta from './images/_1_color.png';
+import map_1_height_meta from './images/_1_height.png';
 import type {VoxelSpaceMap} from './voxel_space';
 
 export async function loadMap1Color(size: {w: number, h: number}|null = null):
