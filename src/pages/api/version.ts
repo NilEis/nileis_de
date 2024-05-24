@@ -1,8 +1,9 @@
 import type {APIRoute} from 'astro';
 import childProcess from 'child_process';
-import type { VersionResult } from './types';
 
-const version: VersionResult= {
+import type {VersionResult} from './types';
+
+const version: VersionResult = {
   hash: childProcess.execSync('git rev-parse --short HEAD').toString().trim(),
   name: childProcess.execSync('git log -1 --oneline')
             .toString()
@@ -13,5 +14,6 @@ const version: VersionResult= {
 };
 
 export const GET: APIRoute = ({params, request}) => {
-  return new Response(JSON.stringify(version));
+  return new Response(
+      JSON.stringify(version), {headers: {'content-type': 'application/json'}});
 }
