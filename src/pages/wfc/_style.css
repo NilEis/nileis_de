@@ -2,7 +2,7 @@
     display: block;
 }
 
-body {
+#parent {
     margin: 0%;
     padding: 0%;
 }

@@ -1,5 +1,5 @@
 ---
-
+import Version from "./components/Version.astro";
 ---
 
 <html lang="en">
@@ -25,19 +25,6 @@
         <a href="lua_wasm/index.html">lua</a>
         <br />
         <br />
-        <code id="hash">hash</code>
-        <script>
-            import type { VersionResult } from "./api/types";
-            const hash_elem: HTMLElement = document.getElementById("hash")!;
-            hash_elem.innerText =
-                "hash: " +
-                (await fetch("api/version.json").then((res: Response) =>
-                    res
-                        .json()
-                        .then(
-                            (obj: VersionResult) => `${obj.hash} - ${obj.name}`,
-                        ),
-                ));
-        </script>
+        <Version />
     </body>
 </html>

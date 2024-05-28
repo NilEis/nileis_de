@@ -1,0 +1,11 @@
+---
+import { version } from "../api/version.json";
+
+interface Props {
+    prefix?: string;
+}
+
+const { prefix = "hash:" } = Astro.props;
+---
+
+<code id="hash">{prefix} {version.hash} - {version.name}</code>

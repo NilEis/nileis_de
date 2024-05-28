@@ -3,7 +3,7 @@ import childProcess from 'child_process';
 
 import type {VersionResult} from './types';
 
-const version: VersionResult = {
+export const version: VersionResult = {
   hash: childProcess.execSync('git rev-parse --short HEAD').toString().trim(),
   name: childProcess.execSync('git log -1 --oneline')
             .toString()
