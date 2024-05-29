@@ -1,3 +1,5 @@
+import type {APIRoute} from 'astro';
+
 interface Constraint {
   left: Set<Tile>;
   right: Set<Tile>;
@@ -269,13 +271,17 @@ function draw(wfc: Wfc, x: number, y: number) {
       wfc.map.cell.height);
 }
 
-export const main = async (wfc: Wfc) => {
-  while (collapse(wfc) && wfc.animated)
-    ;
+export const main =
+    async (wfc: Wfc) => {
+  while (collapse(wfc) && wfc.animated);
   if (!wfc.animated) {
     wfc.map.array.forEach((c, y, _) => {c.forEach((_, x, __) => {
                             draw(wfc, x, y);
                           })})
   }
   requestAnimationFrame(() => main(wfc));
+}
+
+export const GET: APIRoute = ({params, request}) => {
+  return new Response(null, {status: 204});
 }

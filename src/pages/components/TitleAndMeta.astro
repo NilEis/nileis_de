@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { title = "nileis" } = Astro.props;
+import SpeedInsights from "@vercel/speed-insights/astro";
 ---
 
 <meta charset="utf-8" />
@@ -11,3 +12,5 @@ const { title = "nileis" } = Astro.props;
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 <title>{title}</title>
+
+<SpeedInsights />

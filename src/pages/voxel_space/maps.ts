@@ -1,3 +1,5 @@
+import type {APIRoute} from 'astro';
+
 import map_1_color_meta from './images/_1_color.png';
 import map_1_height_meta from './images/_1_height.png';
 import type {VoxelSpaceMap} from './voxel_space';
@@ -149,4 +151,8 @@ function hightMapFromImageData(data: ImageData): Array<Float32Array> {
     }
   }
   return res;
+}
+
+export const GET: APIRoute = async ({params, request}) => {
+  return new Response(null, {status: 204});
 }

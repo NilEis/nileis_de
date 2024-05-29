@@ -1,3 +1,4 @@
+import type {APIRoute} from 'astro';
 import Stats from 'stats.js';
 
 import {loadMap} from './maps';
@@ -460,4 +461,8 @@ function handleMouse(
   }
   state.state.mouse.pos.x = e.x;
   state.state.mouse.pos.y = e.y;
+}
+
+export const GET: APIRoute = ({params, request}) => {
+  return new Response(null, {status: 204});
 }

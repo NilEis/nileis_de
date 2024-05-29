@@ -747,3 +747,7 @@ if (typeof exports === 'object' && typeof module === 'object')
 else if (typeof define === 'function' && define['amd'])
   define([], () => lua_wasm);
 export {lua_wasm};
+
+export const GET = ({params, request}) => {
+  return new Response(null, {status: 204});
+}
