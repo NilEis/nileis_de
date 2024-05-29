@@ -1,9 +1,10 @@
 ---
 import "./_lua_wasm.css";
 import "./_prism.css";
+import TitleAndMeta from "../components/TitleAndMeta.astro";
 ---
 
-<title>lua</title>
+<TitleAndMeta title="Lua" />
 
 <script src="./prism.js">
     import Prism from "./prism";
@@ -79,10 +80,10 @@ import "./_prism.css";
 <p id="output"></p>
 <script>
     import { lua_wasm } from "./lua_wasm.js";
-    let execute: (e: string) => void;
+    let execute: (param: string) => void;
     window.onload = async () => {
         execute = (await lua_wasm()).cwrap("run_lua", null, ["string"]);
-        window["execute"] = execute;
+        window.execute = execute;
         const run = (document.getElementById("run")!.onclick = () => {
             const e = (document.getElementById("luain") as HTMLDivElement)
                 .innerText;

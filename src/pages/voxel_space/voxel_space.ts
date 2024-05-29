@@ -79,7 +79,7 @@ export function VoxelSpaceInit(
       height: 50,
       horizon: canvas.elem.height / 2,
       scale_height: 200,
-      distance: 250,
+      distance: 512,
       keys: {},
       mouse: {
         pos: {x: 0, y: 0},
@@ -242,7 +242,7 @@ export function tick(state: VoxelSpace) {
   }
   state.buffer.data = new Uint32Array(state.buffer.img.data);
   for (let i = 0; i < state.buffer.data.length; i++) {
-    state.buffer.data[i] = 0;
+    state.buffer.data[i] = state.buffer.data[i] * 0.9;
   }
   state.maps.buffer.data = new Uint32Array(state.maps.buffer.img.data);
   for (let i = 0; i < state.maps.buffer.data.length; i++) {
@@ -316,8 +316,9 @@ function drawLine(state: VoxelSpace, start: Coord, end: Coord, map_pos: Coord) {
       state.maps.ctx.color.canvas.width;
   const mapy = (map_pos.y / state.map.color.data.height) *
       state.maps.ctx.color.canvas.height;
-  const map_index =
-      (Math.floor(mapy) * state.maps.ctx.color.canvas.width + Math.floor(mapx))*4;
+  const map_index = (Math.floor(mapy) * state.maps.ctx.color.canvas.width +
+                     Math.floor(mapx)) *
+      4;
   state.maps.buffer.data[map_index + 0] = 255;
   state.maps.buffer.data[map_index + 1] = 255;
   state.maps.buffer.data[map_index + 2] = 255;
@@ -356,7 +357,8 @@ function render(state: VoxelSpace) {
 
   const hbuffer = new Float32Array(frameWidth).fill(frameHeight);
 
-  let dz = 0.1;
+  let ddz = 0.1;
+  let dz = 0.01;
   let z = 1.0;
   while (z < state.state.distance) {
     let pleft: Coord = {
@@ -395,7 +397,8 @@ function render(state: VoxelSpace) {
       pleft.y = pleft.y + dy;
     }
     z += dz;
-    dz += 0.1;
+    dz += ddz;
+    ddz += ddz * 0.01;
   }
 }
 function preventUnderground(state: VoxelSpace, offset: Coord) {

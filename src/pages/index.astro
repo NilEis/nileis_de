@@ -1,30 +1,22 @@
 ---
 import Version from "./components/Version.astro";
+import TitleAndMeta from "./components/TitleAndMeta.astro";
 ---
 
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <meta name="viewport" content="width=device-width" />
-        <meta name="generator" content={Astro.generator} />
-        <title>nileis.de</title>
-    </head>
-    <body>
-        <h1>👷🏗️</h1>
-        <a href="chip-8/index.html">chip-8</a>
-        <br />
-        <a href="twd/index.html">Tower defence</a>
-        <br />
-        <a href="wfc/index.html">Wave function collapse</a>
-        <br />
-        <a href="voxel_space/index.html">Voxel space</a> (<a
-            href="voxel_space/wasm/index.html">in wasm</a
-        >)
-        <br />
-        <a href="lua_wasm/index.html">lua</a>
-        <br />
-        <br />
-        <Version />
-    </body>
-</html>
+<TitleAndMeta />
+
+<h1>👷🏗️</h1>
+<a href="chip-8/index.html">chip-8</a>
+<br />
+<a href="twd/index.html">Tower defence</a>
+<br />
+<a href="wfc/index.html">Wave function collapse</a>
+<br />
+<a href="voxel_space/index.html">Voxel space</a> (<a
+    href="voxel_space/wasm/index.html">in wasm</a
+>)
+<br />
+<a href="lua_wasm/index.html">lua</a>
+<br />
+<br />
+<Version />

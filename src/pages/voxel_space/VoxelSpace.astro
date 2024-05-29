@@ -1,0 +1,80 @@
+---
+import map_1_color from "./images/_1_color.png";
+import map_1_height from "./images/_1_height.png";
+import TitleAndMeta from "../components/TitleAndMeta.astro";
+import "./_style.css";
+---
+
+<TitleAndMeta title="Voxel space" />
+
+<section class="div_table" id="wrapper">
+    <div class="tl">
+        <label for="color_input">Colour map:</label>
+        <input
+            type="file"
+            name="color_input"
+            id="color_input"
+            accept="image/*"
+        />
+        <br />
+        <label for="height_input">Height map:</label>
+        <input
+            type="file"
+            name="height_input"
+            id="height_input"
+            accept="image/*"
+        />
+        <br />
+        <button id="loadBtn">load</button>
+        <button id="resetBtn">reset</button>
+    </div>
+    <div class="tm">
+        <canvas id="canvas">Canvas unsupported</canvas>
+    </div>
+    <div class="tr">
+        <section class="map_table">
+            <div id="color" style="position: relative;">
+                <img
+                    src={map_1_color.src}
+                    alt="Color map"
+                    class="color_map"
+                    id="color_map"
+                    loading="eager"
+                    style="z-index: 0;position: absolute; left: 0; top: 0;"
+                />
+                <canvas
+                    id="color_map_canvas"
+                    style="z-index: 1;position: absolute; left: 0; top: 0;width: 100%;height: 100%;"
+                    class="color_map"></canvas>
+            </div>
+            <div id="height" style="position: relative;">
+                <img
+                    src={map_1_height.src}
+                    alt="Height map"
+                    class="height_map"
+                    id="height_map"
+                    loading="eager"
+                    style="z-index: 0;position: absolute; left: 0; top: 0;"
+                />
+                <canvas
+                    id="height_map_canvas"
+                    style="z-index: 1;position: absolute; left: 0; top: 0;"
+                    class="height_map"></canvas>
+            </div>
+        </section>
+    </div>
+    <div class="ml">4</div>
+    <div class="mm"><a href="./wasm/index.html">In wasm</a></div>
+    <div class="mr">6</div>
+    <div class="bl">7</div>
+    <div class="bm">8</div>
+    <div class="br">9</div>
+</section>
+<script>
+    import { main } from "./voxel_space.ts";
+
+    const top = document.getElementById("wrapper") as HTMLElement;
+    top.parentElement?.setAttribute("id", "parent");
+
+    main();
+</script>

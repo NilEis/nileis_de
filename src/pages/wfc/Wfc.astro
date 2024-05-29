@@ -1,0 +1,17 @@
+---
+import "./_style.css";
+---
+
+<!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+<script>
+    import { init, main } from "./index.ts";
+    import type { Wfc } from "./index";
+
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    canvas.parentElement?.setAttribute("id", "parent");
+
+    const wfc: Wfc = init();
+    main(wfc);
+</script>
