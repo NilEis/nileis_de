@@ -3,6 +3,8 @@ import "./_lua_wasm.css";
 import "./_prism.css";
 ---
 
+<title>lua</title>
+
 <script src="./prism.js">
     import Prism from "./prism";
 </script>
@@ -68,7 +70,7 @@ import "./_prism.css";
 
     document.getElementById("luain").oninput = () => {
         const pos = get_cursor_pos(document.getElementById("luain"));
-        console.log(pos);
+        //console.log(pos);
         Prism.highlightElement(document.getElementById("luain"));
         set_cursor_pos(document.getElementById("luain"), pos);
     };
@@ -81,10 +83,16 @@ import "./_prism.css";
     window.onload = async () => {
         execute = (await lua_wasm()).cwrap("run_lua", null, ["string"]);
         window["execute"] = execute;
-        document.getElementById("run")!.onclick = () => {
-            let e = (document.getElementById("luain") as HTMLDivElement)
+        const run = (document.getElementById("run")!.onclick = () => {
+            const e = (document.getElementById("luain") as HTMLDivElement)
                 .innerText;
             execute(e);
+        });
+        document.getElementById("luain")!.onkeydown = (e: KeyboardEvent) => {
+            if (!(e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
+                return;
+            }
+            run();
         };
     };
 </script>
