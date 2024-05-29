@@ -91,6 +91,7 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
         });
         document.getElementById("luain")!.onkeydown = (e: KeyboardEvent) => {
             if (!(e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
+                e.preventDefault();
                 return;
             }
             run();
