@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--  Licensed to the .NET Foundation under one or more agreements. -->
+<!-- The .NET Foundation licenses this file to you under the MIT license. -->
+<html>
+
+<head>
+    <title>RegExCompiler</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="viz.js"></script>
+    <script type='module' src="./main.js"></script>
+    <style>
+        body
+        {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 50%);
+            grid-template-rows: 100%;
+            gap: 0px 0px;
+            grid-auto-flow: row;
+        }
+
+        #viewer {
+            position:absolute;
+            width: 50%;
+            height: 95%;
+            max-height: 100%;
+            max-width: 50%;
+            grid-area: 1 / 1 / 2 / 3;
+        }
+
+        #controls {
+            width: 50%;
+            max-width: 50%;
+            grid-area: 1 / 2 / 2 / 3;
+        }
+    svg{
+        position:absolute;
+        display:block;
+        width: 100%;
+        height: 100%;
+    }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div id="viewer">
+
+    </div>
+    <div id="controls">
+        <input name="RegExInput" id="RegExInput" value="abc*">
+        <input type="checkbox" name="TB" id="TB">
+        <button id="renderButton">Render</button>
+        <pre id="out"></pre>
+    </div>
+</div>
+</body>
+
+</html>
