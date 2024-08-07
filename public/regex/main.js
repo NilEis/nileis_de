@@ -22,25 +22,42 @@ let createSVG = () => {
     alert("viz not loaded");
 };
 window["vizInstance"] = null;
-document.getElementById("renderButton").onclick = () => {
-    const text = exports.WebRegExCompiler.RegExToNfa(document.getElementById("RegExInput").value);
-    document.getElementById('out').innerHTML = text;
+function compile()
+{
+    const res = exports.WebRegExCompiler.RegExToNfaAndDfa(document.getElementById("RegExInput").value);
+    document.getElementById('outNfa').innerHTML = res[0];
+    document.getElementById('outDfa').innerHTML = res[1];
     createSVG();
+}
+document.getElementById("renderButton").onclick = () => {
+    compile();
 };
+
+document.getElementById("RegExInput").oninput = ()=>
+{
+    if(document.getElementById("ConstantCompile").checked)
+    {
+        compile();
+    }
+}
 
 Viz.instance().then(viz => {
     console.log("Viz loaded");
     window["vizInstance"] = viz;
-    createSVG = () => {
-        document.getElementById("viewer").innerHTML = "";
-        let src = document.getElementById("out").innerText;
+    const setSVG = (src, dest) => {
         if (document.getElementById("TB").checked) {
             src = src.replace("rankdir=LR;", "rankdir=TB;")
         }
         const svg = viz.renderSVGElement(src);
         svg.removeAttribute("width");
         svg.removeAttribute("height");
-        document.getElementById("viewer").appendChild(svg);
+        document.getElementById(dest).appendChild(svg);
+    }
+    createSVG = () => {
+        document.getElementById("NFA").innerHTML = "";
+        document.getElementById("DFA").innerHTML = "";
+        setSVG(document.getElementById("outNfa").innerText, "NFA");
+        setSVG(document.getElementById("outDfa").innerText, "DFA");
     }
 });
 
