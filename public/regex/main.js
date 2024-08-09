@@ -22,21 +22,22 @@ let createSVG = () => {
     alert("viz not loaded");
 };
 window["vizInstance"] = null;
-function compile()
-{
-    const res = exports.WebRegExCompiler.RegExToNfaAndDfa(document.getElementById("RegExInput").value);
+
+function compile() {
+    const res = exports.WebRegExCompiler.RegExToNfaAndDfa(document.getElementById("RegExInput").value,
+        document.getElementById("MinimizeDFA").checked,
+        document.getElementById("MinimizeDFANames").checked);
     document.getElementById('outNfa').innerHTML = res[0];
     document.getElementById('outDfa').innerHTML = res[1];
     createSVG();
 }
+
 document.getElementById("renderButton").onclick = () => {
     compile();
 };
 
-document.getElementById("RegExInput").oninput = ()=>
-{
-    if(document.getElementById("ConstantCompile").checked)
-    {
+document.getElementById("RegExInput").oninput = () => {
+    if (document.getElementById("ConstantCompile").checked) {
         compile();
     }
 }
