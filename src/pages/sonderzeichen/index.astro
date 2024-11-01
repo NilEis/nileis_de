@@ -1,0 +1,110 @@
+---
+import TitleAndMeta from "../components/TitleAndMeta.astro";
+---
+
+<TitleAndMeta title="$onderz€!chen" />
+<div
+    class="grid grid-cols-4 grid-rows-4 content-center table-auto place-content-center place-items-center h-screen"
+>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+
+    <div class="row-span-2">
+        <input
+            style="writing-mode: vertical-rl; direction: rtl;"
+            type="range"
+            name="slider"
+            id="slider"
+            min="0"
+            max="4"
+            value="1"
+        />
+    </div>
+    <div class="col-span-2 w-full">
+        <textarea
+            name="sonderzeichen_input"
+            id="sonderzeichen_input"
+            rows="3"
+            class="block w-full rounded-md border-1 shadow-sm"></textarea>
+        <script>
+            (
+                document.getElementById(
+                    "sonderzeichen_input",
+                )! as HTMLTextAreaElement
+            ).style.resize = "none";
+        </script>
+    </div>
+    <div></div>
+
+    <div class="col-span-2 w-full">
+        <p
+            id="sonderzeichen_output"
+            class="block w-full rounded-md border-1 shadow-sm"
+        >
+        </p>
+    </div>
+    <div></div>
+
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+
+<script>
+    const optional = false;
+    const input = document.getElementById(
+        "sonderzeichen_input",
+    ) as HTMLTextAreaElement;
+    input.value =
+        'mein Mixtape "panikattacken in adidasjacken" wurde leider auf unbekannte Zeit verschoben da ich bemerkt habe das ich gar kein rapper bin';
+    const slider = document.getElementById("slider") as HTMLInputElement;
+    const output = document.getElementById(
+        "sonderzeichen_output",
+    ) as HTMLParagraphElement;
+    input.oninput = updateText;
+    slider.oninput = updateText;
+
+    input.oninput(new Event("input"));
+
+    function updateText() {
+        const level = parseInt(slider.value) as 0 | 1 | 2 | 3 | 4;
+        output.innerText = convertText(input.value, level);
+    }
+
+    function convertText(text: string, intensity: 0 | 1 | 2 | 3 | 4 = 1) {
+        if (intensity > 0) {
+            let old_text = text;
+            do {
+                old_text = text;
+                if (intensity > 3) {
+                    text = text.replaceAll(/m/gi, "/\\/\\");
+                    text = text.replaceAll(/n/gi, "/\\/");
+                    text = text.replaceAll(/v/gi, "\\/");
+                    text = text.replaceAll(/h/gi, "|~|");
+                }
+                if (intensity > 2) {
+                    text = text.replaceAll(/w|\\\/\\\//gi, "vv");
+                    text = text.replaceAll(
+                        /ich h(a|@)b(e|€)|i h(a|@)v(e|€)/gi,
+                        "i han",
+                    );
+                }
+                if (intensity > 1) {
+                    text = text.replaceAll(/(v|\\\/)(e|€)r/gi, "fler");
+                    text = text.replaceAll(/sonderzeichen/gi, "sondersign");
+                    text = text.replaceAll(/schießen|schiessen/gi, "shooten");
+                }
+                text = text.replaceAll(/eine?/gi, "1");
+                text = text.replaceAll(/e/gi, "€");
+                text = text.replaceAll(/i/g, "¡");
+                text = text.replaceAll(/a/gi, "@");
+                text = text.replaceAll(/und|and/gi, "&");
+                text = text.replaceAll(/(?<!\S)i(?!\S)/gi, "1");
+            } while (text != old_text);
+        }
+        return text;
+    }
+</script>
