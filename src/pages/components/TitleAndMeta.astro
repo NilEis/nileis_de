@@ -12,5 +12,10 @@ import SpeedInsights from "@vercel/speed-insights/astro";
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 <title>{title}</title>
-
+<script is:inline>
+    function speedInsightsBeforeSend(data){
+      console.log("Speed Insights before send", data)
+      return data;
+    }
+  </script>
 <SpeedInsights />

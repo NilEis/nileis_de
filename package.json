@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "preinstall": "npx only-allow pnpm", 
+    "preinstall": "npx only-allow pnpm",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
@@ -18,7 +18,7 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/stats.js": "^0.17.3",
-    "@vercel/speed-insights": "^1.0.11",
+    "@vercel/speed-insights": "^1.0.14",
     "astro": "4.16.8",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

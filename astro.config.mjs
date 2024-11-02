@@ -5,16 +5,11 @@ import {defineConfig} from 'astro/config';
 
 import tailwind from '@astrojs/tailwind';
 
-console.log(process.env.VERCEL_ANALYTICS_ID, process.env.PUBLIC_VERCEL_ANALYTICS_ID)
-if (!process.env.VERCEL_ANALYTICS_ID) {
- process.env.VERCEL_ANALYTICS_ID = process.env.PUBLIC_VERCEL_ANALYTICS_ID
-}
-
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
   site: 'https://www.nileis.de',
   integrations: [react(), sitemap(), tailwind()],
   adapter:
-      vercel({webAnalytics: {enabled: true}, speedInsights: {enabled: true}})
+      vercel({webAnalytics: {enabled: true}, speedInsights: {enabled: false}})
 });
