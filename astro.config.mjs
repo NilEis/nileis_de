@@ -11,5 +11,5 @@ export default defineConfig({
   site: 'https://www.nileis.de',
   integrations: [react(), sitemap(), tailwind()],
   adapter:
-      vercel({webAnalytics: {enabled: true}, speedInsights: {enabled: false}})
+      vercel({webAnalytics: {enabled: true}, speedInsights: {enabled: true}})
 });
