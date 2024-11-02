@@ -24,10 +24,10 @@ importers:
         specifier: 7.8.2
         version: 7.8.2(astro@4.16.8(rollup@4.24.3)(typescript@5.6.3))(react@18.3.1)
       '@types/react':
-        specifier: ^18.0.21
+        specifier: ^18.3.12
         version: 18.3.12
       '@types/react-dom':
-        specifier: ^18.0.6
+        specifier: ^18.3.1
         version: 18.3.1
       '@types/stats.js':
         specifier: ^0.17.3
@@ -39,13 +39,13 @@ importers:
         specifier: 4.16.8
         version: 4.16.8(rollup@4.24.3)(typescript@5.6.3)
       react:
-        specifier: ^18.0.0
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.0.0
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       sharp:
-        specifier: ^0.33.3
+        specifier: ^0.33.5
         version: 0.33.5
       stats.js:
         specifier: ^0.17.0
