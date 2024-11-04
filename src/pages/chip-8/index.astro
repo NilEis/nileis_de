@@ -6,11 +6,11 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
 
 <style>
     #parent {
-        margin: 0px;
+        margin: 0;
     }
 
     #canvas {
-        border: 0px none;
+        border: 0 none;
         background-color: black;
     }
 </style>
@@ -41,8 +41,7 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
     Module["printErr"] = Module["print"];
 
     Module.canvas = (function () {
-        var canvas = document.getElementById("canvas");
-        return canvas;
+        return document.getElementById("canvas");
     })();
 </script>
 <script is:inline async type="text/javascript" src="chip-8.js"></script>

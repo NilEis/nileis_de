@@ -10,7 +10,7 @@ interface Constraint {
 ;
 
 class Tile {
-  private color: string;
+  private readonly color: string;
   private name: string;
   private _constraints: Constraint|undefined;
   readonly weight: number;

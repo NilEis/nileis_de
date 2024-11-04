@@ -10,11 +10,11 @@
 
     <style>
         body {
-            margin: 0px;
+            margin: 0;
         }
 
         canvas.emscripten {
-            border: 0px none;
+            border: 0 none;
             background-color: black;
         }
     </style>
@@ -23,7 +23,7 @@
 <body>
     <canvas class=emscripten id=canvas tabindex=-1
         onclick="document.getElementById('canvas').requestFullscreen()"></canvas>
-    <pre id="output" />
+    <pre id="output"></pre>
     <script>
         const output = document.getElementById("output");
         var Module = {};
