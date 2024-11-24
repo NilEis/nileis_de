@@ -1,10 +1,9 @@
 ---
 interface Props {
   title?: string;
-  backgroundColor?: string;
 }
 
-const { title = "nileis", backgroundColor = "white" } = Astro.props;
+const { title = "nileis" } = Astro.props;
 import SpeedInsights from "@vercel/speed-insights/astro";
 ---
 
@@ -13,11 +12,6 @@ import SpeedInsights from "@vercel/speed-insights/astro";
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 <title>{title}</title>
-<style define:vars={{backgroundColor}}>
-  body {
-    background-color: var(--backgroundColor);
-  }
-</style>
 <script is:inline>
   function speedInsightsBeforeSend(data) {
     console.log("Speed Insights before send", data);

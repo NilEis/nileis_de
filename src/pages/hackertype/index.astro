@@ -2,12 +2,17 @@
 import TitleAndMeta from "../components/TitleAndMeta.astro";
 ---
 
-<TitleAndMeta title="Hackertype" backgroundColor="black" />
+<TitleAndMeta title="Hackertype" />
 <pre
   id="source"
   class="w-screen h-screen"
   style="background-color: black; color: green;">
 </pre>
+<style>
+  body {
+    background-color: black;
+  }
+</style>
 <script>
   import backend_shader_c from "./assets/_backend_shader.c?raw";
   import backend_ubo_c from "./assets/_backend_ubo.c?raw";
@@ -24,7 +29,11 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
     while (iterations < 3) {
       c = content[i];
       source.innerText += c;
-      i = (i + 1) % content.length;
+      i++;
+      if (i == content.length) {
+        i = 0;
+        source.innerText += "\n";
+      }
       if (c.trim() != "" || c == "\n") {
         iterations++;
       }
