@@ -23,7 +23,7 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
     backend_shader_c + backend_ubo_c + backend_c + main_c,
   ].join("\n");*/
   let i = 0;
-  const update = (e:Event) => {
+  const update = (e: Event) => {
     let c;
     let iterations = 0;
     while (iterations < 3) {
@@ -38,6 +38,8 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
         iterations++;
       }
     }
+    const scrollingElement = document.scrollingElement || document.body;
+    scrollingElement.scrollTop = scrollingElement.scrollHeight;
     e.preventDefault();
   };
   document.body.onkeydown = update;
