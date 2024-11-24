@@ -19,9 +19,8 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
   import backend_c from "./assets/_backend.c?raw";
   import main_c from "./assets/_main.c?raw";
   const source = document.getElementById("source") as HTMLPreElement;
-  const content: string = main_c; /*[
-    backend_shader_c + backend_ubo_c + backend_c + main_c,
-  ].join("\n");*/
+  const content: string =
+    [backend_shader_c + backend_ubo_c + backend_c + main_c].join("\n") + "\n";
   let i = 0;
   const update = (e: Event) => {
     let c;
@@ -29,11 +28,7 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
     while (iterations < 3) {
       c = content[i];
       source.innerText += c;
-      i++;
-      if (i == content.length) {
-        i = 0;
-        source.innerText += "\n";
-      }
+      i = (i + 1) % content.length;
       if (c.trim() != "" || c == "\n") {
         iterations++;
       }
