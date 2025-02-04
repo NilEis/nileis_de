@@ -1,0 +1,64 @@
+#chat {
+    border: 3px solid black;
+    border-radius: 5px;
+    width: 50%;
+    margin-left: 25%;
+    padding: 2px;
+    padding-top: 0px;
+}
+
+.message {
+    border: 2px solid gray;
+    border-radius: 5px;
+    padding: 7px;
+    margin-top: 2px;
+}
+
+.date_time {
+    width: 50%;
+}
+
+.name {}
+
+.msg {
+    background-color: rgba(178, 178, 178, 0.247);
+    width: 90%;
+    border-radius: 5px;
+    padding: 4px;
+}
+
+.survey_elem {
+    background-color: rgb(215, 215, 215);
+    border: solid lightgray;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.survey {
+    border: solid darkgray;
+    background-color: grey;
+    padding: 5px;
+    padding-top: 0px;
+}
+
+.msg_video {
+    width: 90%;
+}
+
+.msg_audio {
+    width: 90%;
+}
+
+.msg_image {
+    width: 50%;
+}
+
+.msg .msg_image {
+    padding-left: 25%;
+}
+
+.msg_link {}
+
+.progress {
+    width: 100%;
+}

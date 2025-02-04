@@ -1,0 +1,25 @@
+---
+import TitleAndMeta from "../components/TitleAndMeta.astro";
+import "./_main.css";
+---
+
+<TitleAndMeta title="Whatsapp-backup-viewer" />
+
+<script is:inline src="jszip.min.js"></script>
+
+<body>
+    <a href="./LICENSE">jszip license</a>
+    <br>
+  <input type="file" id="file_input" accept=".zip, .txt" />
+  <br />
+  <code id="num_of_nodes"></code>
+  <div id="chat">
+    <div class="message">Hallo</div>
+  </div>
+</body>
+
+<script>
+  import { main } from ".";
+
+  main();
+</script>
