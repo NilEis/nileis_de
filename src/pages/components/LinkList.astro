@@ -1,0 +1,28 @@
+---
+import Anchor from "./Anchor.astro";
+interface Props {
+  sites: { name: string; url: string }[];
+  outerClass?: string;
+  innerClass?: string;
+}
+
+const { sites = [], outerClass = "", innerClass = "" } = Astro.props;
+---
+
+<div class={`flex justify-center items-center ${outerClass}`}>
+  <div>
+    <slot name="pre_list" />
+    <ul class={`list-disc list-inside max-w-md ${innerClass}`}>
+      {
+        sites.map((site) => {
+          return (
+            <li>
+              <Anchor href={site.url}>{site.name}</Anchor>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <slot />
+  </div>
+</div>

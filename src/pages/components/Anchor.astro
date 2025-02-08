@@ -1,0 +1,17 @@
+---
+import TitleAndMeta from "../components/TitleAndMeta.astro";
+interface Props {
+  href?: string;
+}
+
+const { href = "#" } = Astro.props;
+---
+
+<a
+  href={href}
+  class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+>
+  <slot>
+    {href}
+  </slot>
+</a>

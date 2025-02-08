@@ -1,0 +1,11 @@
+---
+import TitleAndMeta from "../components/TitleAndMeta.astro";
+import LinkList from "../components/LinkList.astro";
+const sites: { name: string; url: string }[] = [
+  { name: "Image to Latex", url: "image_to_latex/" },
+].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<TitleAndMeta title="AI" />
+
+<LinkList sites={sites} outerClass="h-screen" />

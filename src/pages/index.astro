@@ -1,31 +1,23 @@
 ---
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
+import LinkList from "./components/LinkList.astro";
+const sites: { name: string; url: string }[] = [
+  { name: "chip-8", url: "chip-8/" },
+  { name: "Tower defence", url: "twd/" },
+  { name: "Wave function collapse", url: "wfc/" },
+  { name: "RegexToNFA", url: "regex/" },
+  { name: "Voxel space", url: "voxel_space/" },
+  { name: "Voxel space in wasm", url: "voxel_space_wasm/" },
+  { name: "lua", url: "lua_wasm/" },
+  { name: "Sonderzeichen", url: "sonderzeichen/" },
+  { name: "Hackertype", url: "hackertype/" },
+  { name: "Whatsapp backup viewer", url: "chat_viewer/" },
+  { name: "AI", url: "ai/" },
+].sort((a, b) => a.name.localeCompare(b.name));
 ---
 
 <TitleAndMeta />
-
-<h1>👷🏗️</h1>
-<a href="chip-8/" class="underline">chip-8</a>
-<br />
-<a href="twd/" class="underline">Tower defence</a>
-<br />
-<a href="wfc/" class="underline">Wave function collapse</a>
-<br />
-<a href="regex/" class="underline">RegexToNFA</a>
-<br />
-<a href="voxel_space/" class="underline">Voxel space</a> (<a
-  href="voxel_space/wasm/"
-  class="underline">in wasm</a
->)
-<br />
-<a href="lua_wasm/" class="underline">lua</a>
-<br />
-<a href="sonderzeichen/" class="underline">Sonderzeichen</a>
-<br />
-<a href="hackertype/" class="underline">Hackertype</a>
-<br />
-<a href="chat_viewer/" class="underline">Whatsapp backup viewer</a>
-<br />
-<br />
-<Version />
+<LinkList sites={sites} outerClass="h-screen">
+  <Version />
+</LinkList>

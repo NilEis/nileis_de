@@ -1,0 +1,76 @@
+---
+import LoadingAnimation from "../../components/LoadingAnimation.astro";
+import TitleAndMeta from "../../components/TitleAndMeta.astro";
+---
+
+<TitleAndMeta title="Image to Latex" />
+<script is:inline>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+    </script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<div id="main_content" class="flex justify-center items-center h-screen">
+  <div class="grid grid-cols-3 grid-rows-1 gap-4">
+    <div class="grid grid-cols-1 grid-rows-2">
+      <div class="w-full h-1/2">
+        <img id="image_view" src="" alt="Input image" class="h-full w-full object-contain" />
+      </div>
+      <div>
+        <input
+          type="file"
+          name="image_input"
+          id="image_input"
+          accept="image/*"
+        />
+      </div>
+    </div>
+    <div class="col-span-2 relative items-center block w-full">
+      <div class="grid grid-cols-1 grid-rows-2">
+        <div class="overflow-scroll max-h-full w-full">
+          <pre>
+            <code id="code-block" class="text-sm text-gray-400 whitespace-pre w-full h-full" />
+        </pre>
+        </div>
+        <div id="output_rendered"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<LoadingAnimation id="all_loading">Loading Model</LoadingAnimation>
+
+<script type="module">
+  import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
+  const img = document.getElementById("image_input");
+  const out = document.getElementById("code-block");
+  const out_rendered = document.getElementById("output_rendered");
+  const main_content = document.getElementById("main_content");
+  const all_loading = document.getElementById("all_loading");
+  const img_view = document.getElementById("image_view");
+  main_content.style.visibility = "hidden";
+  const texify = await pipeline("image-to-text", "Xenova/texify");
+  all_loading.remove();
+  main_content.style.visibility = "visible";
+  img.onchange = async () => {
+      await updateTex("$$\\text{loading...}$$");
+      const image_source = URL.createObjectURL(img.files[0]);
+      img_view.src = image_source;
+    const tex = await texify(image_source, {
+      max_new_tokens: 384,
+    });
+    console.log(tex);
+    await updateTex(tex[0].generated_text);
+  };
+
+  async function updateTex(generatedTex) {
+    out.innerText = generatedTex;
+    out_rendered.innerText = generatedTex;
+    await MathJax.typesetPromise([out_rendered]);
+  }
+</script>
