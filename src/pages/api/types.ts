@@ -9,3 +9,4 @@ export type VersionResult = {
 export const GET: APIRoute = ({params, request}) => {
   return new Response(null, {status: 204});
 }
+export const prerender = true;
