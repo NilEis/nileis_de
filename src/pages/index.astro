@@ -24,8 +24,10 @@ const selectedDate = new Date(startDate.getTime() + Math.floor(
   )).toISOString().slice(0, 10);
 console.log(selectedDate);
 
+const apiCall = `https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&date=${selectedDate}`;
+console.log(apiCall);
 const res = await fetch(
-  `https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&date=${selectedDate}`
+  apiCall
 );
 const image = await res.json();
 const backgroundImage =
