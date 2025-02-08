@@ -16,3 +16,5 @@ export const version: VersionResult = {
 export const GET: APIRoute = ({params, request}) => {
   return new Response(JSON.stringify(version));
 }
+
+export const prerender = true;
