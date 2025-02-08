@@ -17,4 +17,10 @@ export const GET: APIRoute = ({params, request}) => {
   return new Response(JSON.stringify(version));
 }
 
+export async function getStaticPaths() {
+  return [
+    { params: { } }, // [post] is the parameter
+  ];
+}
+
 export const prerender = true;
