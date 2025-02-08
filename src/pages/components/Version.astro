@@ -1,8 +1,21 @@
 ---
-import { version } from "./version.ts";
+import childProcess from "child_process";
 
+const version: {
+  hash: string;
+  name: string;
+} = {
+  hash: childProcess.execSync("git rev-parse --short HEAD").toString().trim(),
+  name: childProcess
+    .execSync("git log -1 --oneline")
+    .toString()
+    .split(" ")
+    .slice(1)
+    .join(" ")
+    .trim(),
+};
 interface Props {
-    prefix?: string;
+  prefix?: string;
 }
 
 const { prefix = "hash:" } = Astro.props;
