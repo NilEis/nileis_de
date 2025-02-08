@@ -1,10 +1,8 @@
 ---
-const version = await fetch("http://localhost:4321/api/version.json").then(
-  (res) => res.json()
-);
+import { version } from "./version.ts";
 
 interface Props {
-  prefix?: string;
+    prefix?: string;
 }
 
 const { prefix = "hash:" } = Astro.props;
