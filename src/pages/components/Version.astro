@@ -1,8 +1,10 @@
 ---
-import { version } from "../api/version.json";
+const version = await fetch("http://localhost:4321/api/version.json").then(
+  (res) => res.json()
+);
 
 interface Props {
-    prefix?: string;
+  prefix?: string;
 }
 
 const { prefix = "hash:" } = Astro.props;
