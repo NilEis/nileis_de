@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
@@ -15,9 +16,58 @@ const sites: { name: string; url: string }[] = [
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
 ].sort((a, b) => a.name.localeCompare(b.name));
+
+const startDate = new Date("2008-03-23");
+
+const selectedDate = new Date(startDate.getTime() + Math.floor(
+    Math.random() * (Date.now() - startDate.getTime())
+  )).toISOString().slice(0, 10);
+console.log(selectedDate);
+
+const res = await fetch(
+  `https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&date=${selectedDate}`
+);
+const image = await res.json();
+const backgroundImage =
+  image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
 ---
 
 <TitleAndMeta />
-<LinkList sites={sites} outerClass="h-screen">
-  <Version />
-</LinkList>
+<div class="sr-only" id="bg-description">
+  {image.explanation}
+  {image.date !== undefined ? `Date: ${image.date}` : ""}
+  {image.copyright !== undefined ? `Copyright: ${image.copyright}` : ""}
+</div>
+<div
+  id="background"
+  style={{ "--image-url": `${backgroundImage}` }}
+  class={`bg-black bg-[image:var(--image-url)] bg-cover bg-no-repeat bg-center flex justify-center items-center h-screen w-screen`}
+  aria-describedby="bg-description"
+  aria-label=`background image: ${image.title}`
+>
+  <div
+    class="fixed top-0 left-0 bg-gray-200 bg-opacity-25 rounded p-2"
+    aria-hidden="true"
+  >
+    {image.title !== undefined ? image.title : ""}
+  </div>
+  <LinkList
+    sites={sites}
+    outerClass="h-screen"
+    middleClass="bg-white bg-opacity-75 rounded p-4"
+  >
+    <Version />
+  </LinkList>
+  <div
+    class="fixed bottom-0 left-0 bg-gray-200 bg-opacity-25 rounded p-2"
+    aria-hidden="true"
+  >
+    {image.copyright !== undefined ? `Copyright: ${image.copyright}` : ""}
+  </div>
+  <div
+    class="fixed bottom-0 right-0 bg-gray-200 bg-opacity-25 rounded p-2"
+    aria-hidden="true"
+  >
+    {image.date !== undefined ? `Date: ${image.date}` : ""}
+  </div>
+</div>
