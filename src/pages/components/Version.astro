@@ -6,6 +6,7 @@ interface Props {
 }
 
 const { prefix = "hash:" } = Astro.props;
+export const prerender = true;
 ---
 
 <code id="hash">{prefix} {version.hash} - {version.name}</code>
