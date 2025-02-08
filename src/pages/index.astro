@@ -1,8 +1,8 @@
 ---
-export const prerender = false;
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
+import { apodData } from "./nasa/apod/apod";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
@@ -17,19 +17,8 @@ const sites: { name: string; url: string }[] = [
   { name: "AI", url: "ai/" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 
-const startDate = new Date("2008-03-23");
+const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
 
-const selectedDate = new Date(startDate.getTime() + Math.floor(
-    Math.random() * (Date.now() - startDate.getTime())
-  )).toISOString().slice(0, 10);
-console.log(selectedDate);
-
-const apiCall = `https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&date=${selectedDate}`;
-console.log(apiCall);
-const res = await fetch(
-  apiCall
-);
-const image = await res.json();
 const backgroundImage =
   image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
 ---
