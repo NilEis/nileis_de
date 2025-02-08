@@ -5,7 +5,8 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "gen:version": "node scripts/version.js",
+    "build": "pnpm run gen:version && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

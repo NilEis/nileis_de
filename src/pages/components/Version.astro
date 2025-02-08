@@ -1,25 +1,10 @@
 ---
-import childProcess from "child_process";
-
-const version: {
-  hash: string;
-  name: string;
-} = {
-  hash: childProcess.execSync("git rev-parse --short HEAD").toString().trim(),
-  name: childProcess
-    .execSync("git log -1 --oneline")
-    .toString()
-    .split(" ")
-    .slice(1)
-    .join(" ")
-    .trim(),
-};
+import version from "./version.json";
 interface Props {
   prefix?: string;
 }
 
 const { prefix = "hash:" } = Astro.props;
-export const prerender = true;
 ---
 
 <code id="hash">{prefix} {version.hash} - {version.name}</code>
