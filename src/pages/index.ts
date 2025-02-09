@@ -1,16 +1,18 @@
+import type { Apod } from "./nasa/apod/apod.json";
+
 export async function renderBackground(maxImage: number)
 {
   const apodIndex = Math.floor (Math.random () * maxImage);
   const fetchedApod = await fetch (`/nasa/apod/${apodIndex}`);
-  const apodDataBuffer = await fetchedApod.json ();
+  const apodDataBuffer = (await fetchedApod.json ()) as number[];
   const decodedData = decodeApod (apodDataBuffer);
-  const apodData = JSON.parse (decodedData);
+  const apodData = (JSON.parse (decodedData)) as Apod;
   const image = apodData;
-  const bgDescription = document.getElementById ("bg-description");
-  const titleDiv = document.getElementById ("title_div");
-  const copyRightDiv = document.getElementById ("copyright_div");
-  const dateDiv = document.getElementById ("date_div");
-  const background = document.getElementById ("background");
+  const bgDescription = document.getElementById ("bg-description")!;
+  const titleDiv = document.getElementById ("title_div")!;
+  const copyRightDiv = document.getElementById ("copyright_div")!;
+  const dateDiv = document.getElementById ("date_div")!;
+  const background = document.getElementById ("background")!;
 
   if (image.explanation !== undefined)
   {
@@ -45,10 +47,19 @@ export async function renderBackground(maxImage: number)
         background.style.backgroundImage = `url(${image.hdurl})`;
       };
     }
+    titleDiv.onclick = () =>
+    {
+      const url = image.hdurl;
+      const a = document.createElement ("a");
+      a.href = url;
+      a.download = `${image.title}.${url.split (".").pop ()!.trim ()}`;
+      a.target = "_blank";
+      a.click ();
+    }
   };
 }
 
-function decodeApod(arr: string): string
+function decodeApod(arr: number[]): string
 {
   let res = "";
   for (let i = 0; i < arr.length; i += 2)
