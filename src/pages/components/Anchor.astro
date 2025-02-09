@@ -1,16 +1,16 @@
 ---
-import TitleAndMeta from "../components/TitleAndMeta.astro";
 interface Props
 {
   href?: string;
 }
 
-const { href = "#" } = Astro.props;
+const { href = "#", ...rest } = Astro.props;
 ---
 
 <a
   href={href}
   class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+  {...rest}
 >
   <slot>
     {href}

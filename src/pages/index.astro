@@ -2,7 +2,6 @@
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
-import { GET } from "./nasa/apod/apod.json";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
@@ -15,8 +14,7 @@ const sites: { name: string; url: string }[] = [
   { name: "Hackertype", url: "hackertype/" },
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
-].sort((a, b) => a.name.localeCompare(b.name));
-const apodDataBuffer = (await (await GET(Astro)).json()) as number[];
+].sort ((a, b) => a.name.localeCompare (b.name));
 ---
 
 <TitleAndMeta />
@@ -53,51 +51,9 @@ const apodDataBuffer = (await (await GET(Astro)).json()) as number[];
   </div>
 </div>
 
-<script define:vars={{ apodDataBuffer }}>
-
-  const decodedData = decodeApod(apodDataBuffer);
-  const apodData = JSON.parse(decodedData);
-  console.log;
-  const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
-  const bgDescription = document.getElementById("bg-description");
-  const titleDiv = document.getElementById("title_div");
-  const copyRightDiv = document.getElementById("copyright_div");
-  const dateDiv = document.getElementById("date_div");
-  const background = document.getElementById("background");
-
-  if (image.explanation !== undefined) {
-    bgDescription.innerText = `${image.explanation}`;
-  }
-  if (image.title !== undefined) {
-    titleDiv.innerText = image.title;
-    background.ariaLabel = `background image: ${image.title}`;
-  }
-  if (image.copyright !== undefined) {
-    copyRightDiv.innerText = `Copyright: ${image.copyright}`;
-    bgDescription.innerText += `${image.copyright}`;
-  }
-  if (image.date !== undefined) {
-    dateDiv.innerText = `Date: ${image.date}`;
-    bgDescription.innerText += `${image.date}`;
-  }
-  const lowQualityImage = new Image();
-  lowQualityImage.src = image.url;
-  lowQualityImage.onload = () => {
-    background.style.backgroundImage = `url(${image.url})`;
-    if (image.url !== image.hdurl) {
-      const highQualityImage = new Image();
-      highQualityImage.src = image.hdurl;
-      highQualityImage.onload = () => {
-        background.style.backgroundImage = `url(${image.hdurl})`;
-      };
-    }
-  };
-
-  function decodeApod(arr) {
-    let res = "";
-    for (let i = 0; i < arr.length; i += 2) {
-      res += String.fromCharCode(arr[i + 1]).repeat(arr[i]);
-    }
-    return res;
-  }
+<script>
+  import { renderBackground } from "./index.ts";
+  const fetchedMaxImage = await fetch ("/nasa/apod/pictures.json");
+  const maxImage = await fetchedMaxImage.json ();
+  await renderBackground(maxImage);
 </script>
