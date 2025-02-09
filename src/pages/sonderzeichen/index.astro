@@ -4,53 +4,53 @@ import TitleAndMeta from "../components/TitleAndMeta.astro";
 
 <TitleAndMeta title="$onderz€!chen" />
 <div
-    class="grid grid-cols-4 grid-rows-4 content-center table-auto place-content-center place-items-center h-screen"
+  class="grid grid-cols-4 grid-rows-4 content-center table-auto place-content-center place-items-center h-screen"
 >
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
 
-    <div class="row-span-2">
-        <input
-            style="writing-mode: vertical-rl; direction: rtl;"
-            type="range"
-            name="slider"
-            id="slider"
-            min="0"
-            max="4"
-            value="1"
-        />
-    </div>
-    <div class="col-span-2 w-full">
-        <textarea
-            name="sonderzeichen_input"
-            id="sonderzeichen_input"
-            rows="3"
-            class="block w-full rounded-md border-1 shadow-sm"></textarea>
-        <script>
+  <div class="row-span-2">
+    <input
+      style="writing-mode: vertical-rl; direction: rtl;"
+      type="range"
+      name="slider"
+      id="slider"
+      min="0"
+      max="4"
+      value="1"
+    />
+  </div>
+  <div class="col-span-2 w-full">
+    <textarea
+      name="sonderzeichen_input"
+      id="sonderzeichen_input"
+      rows="3"
+      class="block w-full rounded-md border-1 shadow-sm"></textarea>
+    <script>
             (
                 document.getElementById(
                     "sonderzeichen_input",
                 )! as HTMLTextAreaElement
             ).style.resize = "none";
-        </script>
-    </div>
-    <div></div>
+    </script>
+  </div>
+  <div></div>
 
-    <div class="col-span-2 w-full">
-        <p
-            id="sonderzeichen_output"
-            class="block w-full rounded-md border-1 shadow-sm"
-        >
-        </p>
-    </div>
-    <div></div>
+  <div class="col-span-2 w-full">
+    <p
+      id="sonderzeichen_output"
+      class="block w-full rounded-md border-1 shadow-sm"
+    >
+    </p>
+  </div>
+  <div></div>
 
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
 </div>
 
 <script>

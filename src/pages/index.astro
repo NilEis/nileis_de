@@ -14,9 +14,9 @@ const sites: { name: string; url: string }[] = [
   { name: "Hackertype", url: "hackertype/" },
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
-].sort((a, b) => a.name.localeCompare(b.name));
+].sort ((a, b) => a.name.localeCompare (b.name));
 import { GET } from "./nasa/apod/apod.json";
-const apodData = await (await GET(Astro)).json();
+const apodData = await (await GET (Astro)).json ();
 ---
 
 <TitleAndMeta />
