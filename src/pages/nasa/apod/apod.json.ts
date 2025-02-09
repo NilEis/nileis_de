@@ -1,3 +1,4 @@
+import type { APIRoute } from 'astro';
 import year_2010 from './_2010.json';
 import year_2011 from './_2011.json';
 import year_2012 from './_2012.json';
@@ -27,7 +28,7 @@ type Apod = {
 
 const year_2025: Apod[] = await (await fetch(`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json();
 
-export const apodData: Apod[] = [
+const apodData: Apod[] = [
     ...(year_2010 as Apod[]),
     ...(year_2011 as Apod[]),
     ...(year_2012 as Apod[]),
@@ -45,3 +46,9 @@ export const apodData: Apod[] = [
     ...(year_2024 as Apod[]),
     ...(year_2025 as Apod[])
 ].filter((apod) => apod.media_type !== 'video');
+
+export const GET:APIRoute = async ({}) =>{
+    return new Response(
+      JSON.stringify(apodData)
+    );
+  }

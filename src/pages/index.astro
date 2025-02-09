@@ -2,7 +2,7 @@
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
-import { apodData } from "./nasa/apod/apod";
+import { apodData } from "./nasa/apod/apod.json";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
@@ -53,7 +53,8 @@ const sites: { name: string; url: string }[] = [
 </div>
 
 <script>
-  import { apodData } from "./nasa/apod/apod";
+  import { GET } from "./nasa/apod/apod.json";
+  const apodData = await (await GET(Astro)).json();
   const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
   const backgroundImage =
     image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
