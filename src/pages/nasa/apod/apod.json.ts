@@ -1,4 +1,15 @@
 import type { APIRoute } from "astro";
+import year_1999 from "./_1999.json";
+import year_2000 from "./_2000.json";
+import year_2001 from "./_2001.json";
+import year_2002 from "./_2002.json";
+import year_2003 from "./_2003.json";
+import year_2004 from "./_2004.json";
+import year_2005 from "./_2005.json";
+import year_2006 from "./_2006.json";
+import year_2007 from "./_2007.json";
+import year_2008 from "./_2008.json";
+import year_2009 from "./_2009.json";
 import year_2010 from "./_2010.json";
 import year_2011 from "./_2011.json";
 import year_2012 from "./_2012.json";
@@ -53,6 +64,17 @@ export function encodeApod(arr:string): number[]
 const year_2025: Apod[] = (await (await fetch (`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json ()) as Apod[];
 
 const apodData: Apod[] = [
+  ...(year_1999 as Apod[]),
+  ...(year_2000 as Apod[]),
+  ...(year_2001 as Apod[]),
+  ...(year_2002 as Apod[]),
+  ...(year_2003 as Apod[]),
+  ...(year_2004 as Apod[]),
+  ...(year_2005 as Apod[]),
+  ...(year_2006 as Apod[]),
+  ...(year_2007 as Apod[]),
+  ...(year_2008 as Apod[]),
+  ...(year_2009 as Apod[]),
   ...(year_2010 as Apod[]),
   ...(year_2011 as Apod[]),
   ...(year_2012 as Apod[]),
@@ -71,7 +93,9 @@ const apodData: Apod[] = [
   ...(year_2025)
 ].filter ((apod) => apod.media_type !== "video");
 
+const rle_encoded_as_string = JSON.stringify (encodeApod (JSON.stringify (apodData)));
+
 export const GET:APIRoute = () =>
 {
-  return new Response (JSON.stringify (encodeApod (JSON.stringify (apodData))));
+  return new Response (rle_encoded_as_string);
 }

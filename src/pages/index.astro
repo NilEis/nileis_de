@@ -15,8 +15,8 @@ const sites: { name: string; url: string }[] = [
   { name: "Hackertype", url: "hackertype/" },
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
-].sort ((a, b) => a.name.localeCompare (b.name));
-const apodDataBuffer: number[] = await (await GET (Astro)).json () as number[];
+].sort((a, b) => a.name.localeCompare(b.name));
+const apodDataBuffer = (await (await GET(Astro)).json()) as number[];
 ---
 
 <TitleAndMeta />
@@ -53,10 +53,11 @@ const apodDataBuffer: number[] = await (await GET (Astro)).json () as number[];
   </div>
 </div>
 
-<script type="module" define:vars={{ apodDataBuffer }}>
+<script define:vars={{ apodDataBuffer }}>
+
   const decodedData = decodeApod(apodDataBuffer);
   const apodData = JSON.parse(decodedData);
-  console.log
+  console.log;
   const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
   const bgDescription = document.getElementById("bg-description");
   const titleDiv = document.getElementById("title_div");
@@ -83,20 +84,20 @@ const apodDataBuffer: number[] = await (await GET (Astro)).json () as number[];
   lowQualityImage.src = image.url;
   lowQualityImage.onload = () => {
     background.style.backgroundImage = `url(${image.url})`;
-    const highQualityImage = new Image();
-    highQualityImage.src = image.hdurl;
-    highQualityImage.onload = () => {
-      background.style.backgroundImage = `url(${image.hdurl})`;
-    };
+    if (image.url !== image.hdurl) {
+      const highQualityImage = new Image();
+      highQualityImage.src = image.hdurl;
+      highQualityImage.onload = () => {
+        background.style.backgroundImage = `url(${image.hdurl})`;
+      };
+    }
   };
 
-  function decodeApod(arr)
-{
-  let res = "";
-  for(let i = 0; i < arr.length; i += 2)
-  {
-    res += String.fromCharCode (arr[i + 1]).repeat (arr[i]);
+  function decodeApod(arr) {
+    let res = "";
+    for (let i = 0; i < arr.length; i += 2) {
+      res += String.fromCharCode(arr[i + 1]).repeat(arr[i]);
+    }
+    return res;
   }
-  return res;
-}
 </script>

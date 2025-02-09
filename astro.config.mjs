@@ -5,14 +5,21 @@ import { defineConfig } from "astro/config";
 
 import tailwind from "@astrojs/tailwind";
 
+import compress from "astro-compress";
+
 // https://astro.build/config
 export default defineConfig({
   output: "static",
   site: "https://www.nileis.de",
-  integrations: [react(), sitemap(), tailwind()],
+  integrations: [
+    react(),
+    sitemap(),
+    tailwind(),
+    compress(),
+  ],
   adapter: vercel({
     webAnalytics: { enabled: true },
     speedInsights: { enabled: true },
-    maxDuration: 1
+    maxDuration: 1,
   }),
 });
