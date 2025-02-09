@@ -26,9 +26,28 @@ export type Apod = {
   url: string;
 };
 
-function encode(arr:string): Int8Array
+export function encodeApod(arr:string): Uint8Array
 {
-
+  let prev = arr.charCodeAt (0);
+  let count = 1;
+  const res:number[] = [];
+  for(let i = 1; i < arr.length; i++)
+  {
+    if(count == 255 || arr.charCodeAt (i) != prev)
+    {
+      res.push (count);
+      res.push (prev);
+      count = 1;
+      prev = arr.charCodeAt (i);
+    }
+    else
+    {
+      count++;
+    }
+  }
+  res.push (count);
+  res.push (prev);
+  return new Uint8Array (res);
 }
 
 const year_2025: Apod[] = (await (await fetch (`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json ()) as Apod[];
@@ -54,5 +73,5 @@ const apodData: Apod[] = [
 
 export const GET:APIRoute = () =>
 {
-  return new Response (JSON.stringify (apodData));
+  return new Response (encodeApod (JSON.stringify (apodData)));
 }

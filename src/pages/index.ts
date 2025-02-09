@@ -1,1 +1,0 @@
-import type { Apod } from "./nasa/apod/apod.json";

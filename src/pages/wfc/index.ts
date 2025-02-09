@@ -91,6 +91,7 @@ class Cell
     if (force == null)
     {
       const arr: Array<Tile> = Array.from ((this.cell as Set<Tile>).values ());
+      // eslint-disable-next-line no-constant-condition
       if (1)
       {
         const totalWeight: number
@@ -222,7 +223,8 @@ Wfc =>
 
   res.map.array = Array.from (
     {length: res.map.height},
-    (_, i): Array<Cell > => Array.from ({length: res.map.width}, (): Cell => (new Cell))
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_): Array<Cell > => Array.from ({length: res.map.width}, (): Cell => (new Cell))
   );
   canvas_resize_handler (res);
   res.canvas.style.backgroundColor = "black";
@@ -323,13 +325,15 @@ function draw(wfc: Wfc, x: number, y: number)
 }
 
 export const main
-    = async (wfc: Wfc) =>
+    = (wfc: Wfc) =>
     {
       while (collapse (wfc) && wfc.animated);
       if (!wfc.animated)
       {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         wfc.map.array.forEach ((c, y, _) =>
         {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           c.forEach ((_, x, __) =>
           {
             draw (wfc, x, y);
@@ -339,7 +343,7 @@ export const main
       requestAnimationFrame (() => main (wfc));
     }
 
-export const GET: APIRoute = ({params, request}) =>
+export const GET: APIRoute = () =>
 {
   return new Response (null, {status: 204});
 }

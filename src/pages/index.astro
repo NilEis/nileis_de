@@ -15,8 +15,7 @@ const sites: { name: string; url: string }[] = [
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
 ].sort ((a, b) => a.name.localeCompare (b.name));
-import { GET } from "./nasa/apod/apod.json";
-const apodData = await (await GET (Astro)).json ();
+const apodDataBuffer: Uint8Array= new Uint8Array (await(await GET (Astro)).arrayBuffer ());
 ---
 
 <TitleAndMeta />
@@ -53,7 +52,9 @@ const apodData = await (await GET (Astro)).json ();
   </div>
 </div>
 
-<script type="module" define:vars={{ apodData }}>
+<script type="module" define:vars={{ apodDataBuffer }}>
+
+  const apodData = JSON.parse(decodeApod(apodDataBuffer));
   const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
   const backgroundImage =
     image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
@@ -79,4 +80,14 @@ const apodData = await (await GET (Astro)).json ();
     bgDescription.innerText += `${image.date}`;
   }
   background.style.backgroundImage = backgroundImage;
+
+  function decodeApod(arr)
+{
+  let res = "";
+  for(let i = 0; i < arr.length; i += 2)
+  {
+    res += String.fromCharCode (arr[i + 1]).repeat (arr[i]);
+  }
+  return res;
+}
 </script>
