@@ -15,7 +15,7 @@ import year_2022 from './_2022.json';
 import year_2023 from './_2023.json';
 import year_2024 from './_2024.json';
 
-type Apod = {
+export type Apod = {
     copyright?: string;
     date: string;
     explanation: string;
