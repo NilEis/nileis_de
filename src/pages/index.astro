@@ -2,7 +2,7 @@
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
-import { GET } from "./nasa/apod/apod";
+import { GET } from "./nasa/apod/apod.json";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
@@ -16,7 +16,7 @@ const sites: { name: string; url: string }[] = [
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
 ].sort ((a, b) => a.name.localeCompare (b.name));
-const apodDataBuffer: Uint8Array= new Uint8Array (await(await GET (Astro)).arrayBuffer ());
+const apodDataBuffer: number[] = await (await GET (Astro)).json () as number[];
 ---
 
 <TitleAndMeta />
@@ -54,11 +54,10 @@ const apodDataBuffer: Uint8Array= new Uint8Array (await(await GET (Astro)).array
 </div>
 
 <script type="module" define:vars={{ apodDataBuffer }}>
-
-  const apodData = JSON.parse(decodeApod(apodDataBuffer));
+  const decodedData = decodeApod(apodDataBuffer);
+  const apodData = JSON.parse(decodedData);
+  console.log
   const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
-  const backgroundImage =
-    image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
   const bgDescription = document.getElementById("bg-description");
   const titleDiv = document.getElementById("title_div");
   const copyRightDiv = document.getElementById("copyright_div");
@@ -80,7 +79,16 @@ const apodDataBuffer: Uint8Array= new Uint8Array (await(await GET (Astro)).array
     dateDiv.innerText = `Date: ${image.date}`;
     bgDescription.innerText += `${image.date}`;
   }
-  background.style.backgroundImage = backgroundImage;
+  const lowQualityImage = new Image();
+  lowQualityImage.src = image.url;
+  lowQualityImage.onload = () => {
+    background.style.backgroundImage = `url(${image.url})`;
+    const highQualityImage = new Image();
+    highQualityImage.src = image.hdurl;
+    highQualityImage.onload = () => {
+      background.style.backgroundImage = `url(${image.hdurl})`;
+    };
+  };
 
   function decodeApod(arr)
 {
