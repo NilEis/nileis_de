@@ -53,6 +53,8 @@ const apodData = await (await GET(Astro)).json();
   </div>
 </div>
 
-<script define:vars={{ apodData }}>
+<script type="module" define:vars={{ apodData }}>
+  import { update } from ".";
+
   update(apodData);
 </script>
