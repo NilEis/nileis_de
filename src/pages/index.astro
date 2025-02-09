@@ -16,31 +16,20 @@ const sites: { name: string; url: string }[] = [
   { name: "Whatsapp backup viewer", url: "chat_viewer/" },
   { name: "AI", url: "ai/" },
 ].sort((a, b) => a.name.localeCompare(b.name));
-
-const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
-
-const backgroundImage =
-  image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
 ---
 
 <TitleAndMeta />
-<div class="sr-only" id="bg-description">
-  {image.explanation}
-  {image.date !== undefined ? `Date: ${image.date}` : ""}
-  {image.copyright !== undefined ? `Copyright: ${image.copyright}` : ""}
-</div>
+<div class="sr-only" id="bg-description"></div>
 <div
   id="background"
-  style={{ "--image-url": `${backgroundImage}` }}
-  class={`bg-black bg-[image:var(--image-url)] bg-cover bg-no-repeat bg-center flex justify-center items-center h-screen w-screen`}
+  class={`bg-black bg-cover bg-no-repeat bg-center flex justify-center items-center h-screen w-screen`}
   aria-describedby="bg-description"
-  aria-label=`background image: ${image.title}`
 >
   <div
     class="fixed top-0 left-0 bg-gray-200 bg-opacity-25 rounded p-2"
     aria-hidden="true"
+    id="title_div"
   >
-    {image.title !== undefined ? image.title : ""}
   </div>
   <LinkList
     sites={sites}
@@ -52,13 +41,46 @@ const backgroundImage =
   <div
     class="fixed bottom-0 left-0 bg-gray-200 bg-opacity-25 rounded p-2"
     aria-hidden="true"
+    id="copyright_div"
   >
-    {image.copyright !== undefined ? `Copyright: ${image.copyright}` : ""}
   </div>
   <div
     class="fixed bottom-0 right-0 bg-gray-200 bg-opacity-25 rounded p-2"
     aria-hidden="true"
+    id="date_div"
   >
-    {image.date !== undefined ? `Date: ${image.date}` : ""}
   </div>
 </div>
+
+<script>
+  import { apodData } from "./nasa/apod/apod";
+  const image = apodData[Math.floor(Math.random() * (apodData.length - 1))];
+  const backgroundImage =
+    image.hdurl !== undefined ? `url("${image.hdurl}")` : "";
+  const bgDescription = document.getElementById(
+    "bg-description"
+  ) as HTMLDivElement;
+  const titleDiv = document.getElementById("title_div") as HTMLDivElement;
+  const copyRightDiv = document.getElementById(
+    "copyright_div"
+  ) as HTMLDivElement;
+  const dateDiv = document.getElementById("date_div") as HTMLDivElement;
+  const background = document.getElementById("background") as HTMLDivElement;
+
+  if (image.explanation !== undefined) {
+    bgDescription.innerText = `${image.explanation}`;
+  }
+  if (image.title !== undefined) {
+    titleDiv.innerText = image.title;
+    background.ariaLabel = `background image: ${image.title}`;
+  }
+  if (image.copyright !== undefined) {
+    copyRightDiv.innerText = `Copyright: ${image.copyright}`;
+    bgDescription.innerText += `${image.copyright}`;
+  }
+  if (image.date !== undefined) {
+    dateDiv.innerText = `Date: ${image.date}`;
+    bgDescription.innerText += `${image.date}`;
+  }
+  background.style.backgroundImage = backgroundImage;
+</script>
