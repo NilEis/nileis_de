@@ -2,6 +2,7 @@
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
+import { GET } from "./nasa/apod/apod";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
