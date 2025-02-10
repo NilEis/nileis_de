@@ -36,8 +36,8 @@ const sites: { name: string; url: string }[] = [
     outerClass="h-screen"
     middleClass="bg-white bg-opacity-75 rounded p-4"
   >
-    <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" id="rerender">Reload background</a>
-    <Version />
+    <div class="font-medium text-blue-600 dark:text-blue-500 hover:underline" id="rerender">Reload background</div>
+    <Version slot="after-list" />
   </LinkList>
   <div
     class="fixed bottom-0 left-0 bg-gray-200 bg-opacity-25 rounded p-2"
