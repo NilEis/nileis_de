@@ -2,6 +2,7 @@
 import Version from "./components/Version.astro";
 import TitleAndMeta from "./components/TitleAndMeta.astro";
 import LinkList from "./components/LinkList.astro";
+import Anchor from "./components/Anchor.astro";
 const sites: { name: string; url: string }[] = [
   { name: "chip-8", url: "chip-8/" },
   { name: "Tower defence", url: "twd/" },
@@ -35,6 +36,7 @@ const sites: { name: string; url: string }[] = [
     outerClass="h-screen"
     middleClass="bg-white bg-opacity-75 rounded p-4"
   >
+    <a class="font-medium text-blue-600 dark:text-blue-500 hover:underline" id="rerender">Reload background</a>
     <Version />
   </LinkList>
   <div
@@ -56,4 +58,7 @@ const sites: { name: string; url: string }[] = [
   const fetchedMaxImage = await fetch ("/nasa/apod/pictures.json");
   const maxImage = await fetchedMaxImage.json ();
   await renderBackground(maxImage);
+  document.getElementById("rerender")!.onclick = async () => {
+    await renderBackground(maxImage);
+  };
 </script>

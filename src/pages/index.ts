@@ -25,8 +25,13 @@ export async function renderBackground(maxImage: number)
   }
   if (image.copyright !== undefined)
   {
+    copyRightDiv.style.visibility = "visible";
     copyRightDiv.innerText = `Copyright: ${image.copyright}`;
     bgDescription.innerText += `${image.copyright}`;
+  }
+  else
+  {
+    copyRightDiv.style.visibility = "hidden";
   }
   if (image.date !== undefined)
   {
