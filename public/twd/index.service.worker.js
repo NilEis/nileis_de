@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1741047686|1829965132';
+const CACHE_VERSION = '1741097428|1491404122';
 /** @type {string} */
 const CACHE_PREFIX = 'AutomaticTowerDe-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
