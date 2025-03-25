@@ -14,34 +14,11 @@ export async function renderBackground(maxImage: number)
   const dateDiv = document.getElementById ("date_div")!;
   const background = document.getElementById ("background")!;
 
-  if (image.explanation !== undefined)
-  {
-    bgDescription.innerText = `${image.explanation}`;
-  }
-  if (image.title !== undefined)
-  {
-    titleDiv.innerText = image.title;
-    background.ariaLabel = `background image: ${image.title}`;
-  }
-  if (image.copyright !== undefined)
-  {
-    copyRightDiv.style.visibility = "visible";
-    copyRightDiv.innerText = `Copyright: ${image.copyright}`;
-    bgDescription.innerText += `${image.copyright}`;
-  }
-  else
-  {
-    copyRightDiv.style.visibility = "hidden";
-  }
-  if (image.date !== undefined)
-  {
-    dateDiv.innerText = `Date: ${image.date}`;
-    bgDescription.innerText += `${image.date}`;
-  }
   const lowQualityImage = (new Image);
   lowQualityImage.src = image.url;
   lowQualityImage.onload = () =>
   {
+    updateBackgroundTexts();
     background.style.backgroundImage = `url(${image.url})`;
     if (image.url !== image.hdurl)
     {
@@ -62,6 +39,29 @@ export async function renderBackground(maxImage: number)
       a.click ();
     }
   };
+
+  function updateBackgroundTexts() {
+    if (image.explanation !== undefined) {
+      bgDescription.innerText = `${image.explanation}`;
+    }
+    if (image.title !== undefined) {
+      titleDiv.innerText = image.title;
+      background.ariaLabel = `background image: ${image.title}`;
+    }
+    if (image.copyright !== undefined) {
+      copyRightDiv.style.visibility = "visible";
+      copyRightDiv.innerText = `Copyright: ${image.copyright}`;
+      bgDescription.innerText += `${image.copyright}`;
+    }
+
+    else {
+      copyRightDiv.style.visibility = "hidden";
+    }
+    if (image.date !== undefined) {
+      dateDiv.innerText = `Date: ${image.date}`;
+      bgDescription.innerText += `${image.date}`;
+    }
+  }
 }
 
 function decodeApod(arr: number[]): string
