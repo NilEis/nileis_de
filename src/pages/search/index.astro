@@ -25,13 +25,21 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     </div>
     <script>
         import { pipeline, type Tensor } from "@xenova/transformers";
-        import { embeddings, type embedding_entry } from "./embeddings";
-        document.onload = async () => {
+        type embedding_entry = {
+            name: string;
+            path: string;
+            vector: number[];
+        };
+        const embeddings = await (await fetch("./embeddings.json")).text();
+        window.onload = async () => {
+            console.log("loading embedding-pipeline");
             const embedder = await pipeline(
                 "feature-extraction",
                 "Xenova/nomic-embed-text-v1",
             );
+            console.log("embedding-pipeline loaded");
             const data = JSON.parse(embeddings) as embedding_entry[];
+            console.log(data);
             const search = document.getElementById(
                 "search",
             ) as HTMLInputElement;
@@ -39,19 +47,14 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
                 "search_results",
             ) as HTMLDivElement;
             search.addEventListener("input", async () => {
-                const search_term = search.value;
+                const search_term = "search_query: " + search.value;
                 const search_vector = await embedder(search_term);
+                const vector = [...search_vector.data];
                 const results = data.sort((a, b) => {
-                    return (
-                        cos_dist(
-                            a.vector.data as number[],
-                            search_vector.data as number[],
-                        ) -
-                        cos_dist(
-                            b.vector.data as number[],
-                            search_vector.data as number[],
-                        )
-                    );
+                    const dist =
+                        euclid_dist(a.vector, vector) -
+                        euclid_dist(b.vector, vector);
+                    return dist;
                 });
                 search_results.innerHTML = "";
                 results.forEach((result) => {
@@ -65,8 +68,24 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
             });
         };
 
+        function euclid_dist(v_1: number[], v_2: number[]): number {
+            return Math.sqrt(squared_dist(v_1, v_2));
+        }
+
+        function squared_dist(v_1: number[], v_2: number[]): number {
+            return Math.sqrt(
+                v_1.reduce((sum, val, i) => {
+                    return sum + (val - v_2[i]) ** 2;
+                }, 0),
+            );
+        }
+
         function cos_dist(v_1: number[], v_2: number[]): number {
-            const dot_product = (v_1 as number[]).reduce((sum, val, i) => {
+            console.log("v_1");
+            console.log(v_1);
+            console.log("v_2");
+            console.log(v_2);
+            const dot_product = v_1.reduce((sum, val, i) => {
                 return sum + val * v_2[i];
             }, 0);
             const mag_1 = Math.sqrt(
