@@ -1,7 +1,20 @@
-export type Route = {
-  name: string; url: string;
+interface IRoute {
+  name: string;
+  url: string;
+  Description?: string;
+  children?: IRoute[];
+}
+export class Route implements IRoute {
+  name: string;
+  url: string;
   Description?: string;
   children?: Route[];
+  constructor(options: IRoute) {
+    this.name = options.name;
+    this.url = options.url;
+    this.Description = options.Description;
+    this.children = options.children?.map((child) => new Route(child));
+  }
 };
 
 export const routes: Route[] = generateRoutes([
@@ -37,8 +50,7 @@ export const routes: Route[] = generateRoutes([
   {
     name: 'Voxel space in wasm',
     url: 'voxel_space_wasm/',
-    Description:
-        'A voxel space renderer written in C compiled to wasm.'
+    Description: 'A voxel space renderer written in C compiled to wasm.'
   },
   {
     name: 'lua',
@@ -86,14 +98,37 @@ export const routes: Route[] = generateRoutes([
     Description:
         'This page provides a vector-based search functionality. Users can input a search term into the search bar, and the page dynamically retrieves and displays the most relevant results based on semantic similarity. The results are ranked using a cosine distance metric and link to related resources. It offers an interactive and efficient way to explore content using advanced embedding techniques.'
   },
+  {
+    name: 'Texte',
+    url: 'blog/',
+    Description:
+        'This page hosts a collection of blog posts or articles. It features a clean layout with a list of clickable titles, each leading to a specific blog post. Users can navigate through the posts and read detailed articles on various topics. The page ensures readability and accessibility for an engaging reading experience. AMOGUS'
+  }
 ]);
 
-function generateRoutes(routes: Route[]): Route[] {
+export const path_routes: Map<string, Route> = generatePathRoutes(routes, '');
+
+function generatePathRoutes(
+    routes: Route[], parentPath: string): Map<string, Route> {
+  let pr = new Map<string, Route>();
+  for (const route of routes) {
+    const path = parentPath + route.url;
+    pr.set(path, route);
+    if (route.children) {
+      pr = new Map<string, Route>(
+          [...pr, ...generatePathRoutes(route.children, path)]);
+    }
+  }
+  return pr;
+}
+
+function generateRoutes(routes: IRoute[]): Route[] {
   for (const route of routes) {
     if (route.children) {
       route.children = generateRoutes(route.children);
     }
   }
-  routes = routes.sort((a, b) => a.name.localeCompare(b.name));
+  routes = routes.sort((a, b) => a.name.localeCompare(b.name))
+               .map((route) => new Route(route));
   return routes;
 }

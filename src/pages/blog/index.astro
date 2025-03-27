@@ -1,0 +1,14 @@
+---
+import TitleAndMeta from "../../components/TitleAndMeta.astro";
+import LinkList from "../../components/LinkList.astro";
+import { path_routes } from "../../data/routes.ts";
+---
+
+<TitleAndMeta title="Blog" />
+<div
+    class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
+>
+    <LinkList sites={path_routes.get("blog/")?.children ?? []}>
+    <h3 slot="pre_list">Amogus</h3>
+    </LinkList>
+</div>
