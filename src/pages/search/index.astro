@@ -38,7 +38,7 @@ import { embeddings } from "./embeddings.json";
             vector: number[];
         };
         const embeddings = await (await fetch("./embeddings.json")).text();
-        document.onload = async () => {
+        
             console.log("loading embedding-pipeline");
             const embedder = await pipeline(
                 "feature-extraction",
@@ -79,7 +79,7 @@ import { embeddings } from "./embeddings.json";
                     search_results.appendChild(div);
                 });
             });
-        };
+        
 
         function euclid_dist(v_1: number[], v_2: number[]): number {
             return Math.sqrt(squared_dist(v_1, v_2));
