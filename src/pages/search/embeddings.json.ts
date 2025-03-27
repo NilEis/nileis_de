@@ -11,7 +11,7 @@ const embedder =
     await pipeline('feature-extraction', 'Xenova/nomic-embed-text-v1');
 console.log('Model loaded');
 console.log('Embedding routes...');
-const embeddings = await embedRoutes(routes, '');
+export const embeddings = await embedRoutes(routes, '');
 console.log('Routes embedded');
 console.groupEnd();
 

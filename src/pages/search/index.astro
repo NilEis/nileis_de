@@ -1,5 +1,6 @@
 ---
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
+import { embeddings } from "./embeddings.json";
 ---
 
 <TitleAndMeta title="Vector Search" />
@@ -16,12 +17,18 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
         placeholder="search"
     />
     <div id="search_results" class="flex justify-center items-center flex-col">
-        <div>1</div>
-        <div>1</div>
-        <div>1</div>
-        <div>1</div>
-        <div>1</div>
-        <div>1</div>
+        {
+            embeddings.map((embedding) => (
+                <div>
+                    <a
+                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                        href={`../${embedding.path}`}
+                    >
+                        {embedding.name}
+                    </a>
+                </div>
+            ))
+        }
     </div>
     <script>
         import { pipeline, type Tensor } from "@xenova/transformers";
@@ -62,6 +69,12 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
                     const link = document.createElement("a");
                     link.href = "../" + result.path;
                     link.innerText = result.name;
+                    link.classList.add(
+                        "font-medium",
+                        "text-blue-600",
+                        "dark:text-blue-500",
+                        "hover:underline",
+                    );
                     div.appendChild(link);
                     search_results.appendChild(div);
                 });
