@@ -12,6 +12,6 @@ const version = {
           .trim(),
 };
 
-const outPath = join(process.cwd(), "src", "pages", "components", "version.json");
+const outPath = join(process.cwd(), "src", "components", "version.json");
 writeFileSync(outPath, JSON.stringify(version, null, 2));
 console.log("✅ Generated version file:", version);
