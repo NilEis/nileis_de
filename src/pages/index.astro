@@ -2,20 +2,7 @@
 import Version from "../components/Version.astro";
 import TitleAndMeta from "../components/TitleAndMeta.astro";
 import LinkList from "../components/LinkList.astro";
-const sites: { name: string; url: string }[] = [
-  { name: "chip-8", url: "chip-8/" },
-  { name: "Tower defence", url: "twd/" },
-  { name: "Wave function collapse", url: "wfc/" },
-  { name: "RegexToNFA", url: "regex/" },
-  { name: "Voxel space", url: "voxel_space/" },
-  { name: "Voxel space in wasm", url: "voxel_space_wasm/" },
-  { name: "lua", url: "lua_wasm/" },
-  { name: "Sonderzeichen", url: "sonderzeichen/" },
-  { name: "Hackertype", url: "hackertype/" },
-  { name: "Whatsapp backup viewer", url: "chat_viewer/" },
-  { name: "AI", url: "ai/" },
-  { name: "Asteroid", url: "asteroid/" },
-].sort((a, b) => a.name.localeCompare(b.name));
+import { routes } from "../data/routes.ts";
 ---
 
 <TitleAndMeta />
@@ -32,7 +19,7 @@ const sites: { name: string; url: string }[] = [
   >
   </div>
   <LinkList
-    sites={sites}
+    sites={routes}
     outerClass="h-screen"
     middleClass="bg-white bg-opacity-75 rounded p-4"
   >

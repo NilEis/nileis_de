@@ -1,0 +1,84 @@
+---
+import TitleAndMeta from "../../components/TitleAndMeta.astro";
+---
+
+<TitleAndMeta title="Vector Search" />
+
+<div
+    class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
+>
+    <!-- Search bar -->
+    <input
+        type="search"
+        id="search"
+        name="search"
+        class="rounded p-2 border-2"
+        placeholder="search"
+    />
+    <div id="search_results" class="flex justify-center items-center flex-col">
+        <div>1</div>
+        <div>1</div>
+        <div>1</div>
+        <div>1</div>
+        <div>1</div>
+        <div>1</div>
+    </div>
+    <script>
+        import { pipeline, type Tensor } from "@xenova/transformers";
+        import { embeddings, type embedding_entry } from "./embeddings";
+        document.onload = async () => {
+            const embedder = await pipeline(
+                "feature-extraction",
+                "Xenova/nomic-embed-text-v1",
+            );
+            const data = JSON.parse(embeddings) as embedding_entry[];
+            const search = document.getElementById(
+                "search",
+            ) as HTMLInputElement;
+            const search_results = document.getElementById(
+                "search_results",
+            ) as HTMLDivElement;
+            search.addEventListener("input", async () => {
+                const search_term = search.value;
+                const search_vector = await embedder(search_term);
+                const results = data.sort((a, b) => {
+                    return (
+                        cos_dist(
+                            a.vector.data as number[],
+                            search_vector.data as number[],
+                        ) -
+                        cos_dist(
+                            b.vector.data as number[],
+                            search_vector.data as number[],
+                        )
+                    );
+                });
+                search_results.innerHTML = "";
+                results.forEach((result) => {
+                    const div = document.createElement("div");
+                    const link = document.createElement("a");
+                    link.href = "../" + result.path;
+                    link.innerText = result.name;
+                    div.appendChild(link);
+                    search_results.appendChild(div);
+                });
+            });
+        };
+
+        function cos_dist(v_1: number[], v_2: number[]): number {
+            const dot_product = (v_1 as number[]).reduce((sum, val, i) => {
+                return sum + val * v_2[i];
+            }, 0);
+            const mag_1 = Math.sqrt(
+                v_1.reduce((sum, val) => sum + val * val, 0),
+            );
+            const mag_2 = Math.sqrt(
+                v_2.reduce((sum, val) => sum + val * val, 0),
+            );
+            if (mag_1 * mag_2 !== 0) {
+                return dot_product / (mag_1 * mag_2);
+            }
+            return 0;
+        }
+    </script>
+</div>
