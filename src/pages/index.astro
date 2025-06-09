@@ -46,7 +46,7 @@ import { routes } from "../data/routes.ts";
 </div>
 
 <script>
-  import { renderBackground } from "./index.ts";
+  import { renderBackground } from "./main.ts";
   const fetchedMaxImage = await fetch("/nasa/apod/pictures.json");
   const maxImage = await fetchedMaxImage.json();
   await renderBackground(maxImage);

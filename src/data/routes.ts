@@ -70,6 +70,11 @@ export const routes: Route[] = generateRoutes([
         'A tool that prints source code in a hacker style. It is a joke.'
   },
   {
+    name: "Kruskal minimum spanning tree",
+    url: "kruskal/" ,
+    Description: "A tool to visualize the Kruskal algorithm for finding the minimum spanning tree of a graph."
+  },
+  {
     name: 'Whatsapp backup viewer',
     url: 'chat_viewer/',
     Description:

@@ -61,7 +61,7 @@ export function encodeApod(arr:string): number[]
   return res;
 }
 
-const year_2025: Apod[] = (await (await fetch (`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json ()) as Apod[];
+const year_2025: Apod[] = import.meta.env.NASA_API!== undefined?(await (await fetch (`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json ()) as Apod[]:[];
 
 export const apodData: Apod[] = [
   ...(year_1999 as Apod[]),
