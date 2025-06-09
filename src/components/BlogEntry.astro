@@ -1,0 +1,12 @@
+---
+import MainContent from './MainContent.astro';
+
+interface Props {
+  class?: string;
+  id?: string;
+}
+
+const { class: css = "", id = "" } = Astro.props;
+---
+
+<MainContent class={`${css}`} id={`${id}`}><slot /></MainContent>

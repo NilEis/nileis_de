@@ -107,7 +107,10 @@ export const routes: Route[] = generateRoutes([
     name: 'Texte',
     url: 'blog/',
     Description:
-        'This page hosts a collection of blog posts or articles. It features a clean layout with a list of clickable titles, each leading to a specific blog post. Users can navigate through the posts and read detailed articles on various topics. The page ensures readability and accessibility for an engaging reading experience. AMOGUS'
+        'This page hosts a collection of blog posts or articles. It features a clean layout with a list of clickable titles, each leading to a specific blog post. Users can navigate through the posts and read detailed articles on various topics. The page ensures readability and accessibility for an engaging reading experience. AMOGUS',
+        children:[
+          {name: "Amogus", url: "amogus/", Description: "AMOGUS"},
+        ]
   }
 ]);
 
