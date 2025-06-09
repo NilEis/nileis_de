@@ -1,11 +1,12 @@
 ---
+import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 ---
 
 <TitleAndMeta title="Chip-8" />
-
-<style>
-    #parent {
+<MainContent>
+    <style>
+        #parent {
         margin: 0;
     }
 
@@ -45,3 +46,4 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     })();
 </script>
 <script is:inline async type="text/javascript" src="chip-8.js"></script>
+</MainContent>

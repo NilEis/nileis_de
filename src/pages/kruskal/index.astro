@@ -1,28 +1,31 @@
 ---
+import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 ---
 
 <TitleAndMeta title="Kruskal" />
-<canvas class="w-full h-full bg-black" id="canvas">Canvas for webgl</canvas>
+<MainContent>
+  <canvas class="w-full h-full bg-black" id="canvas">Canvas for webgl</canvas>
 
-<script>
-  import { Kruskal } from "./kruskal";
-  (() => {
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const res = Kruskal.init(canvas);
-    if (res.success === false) {
-      console.error("Failed to initialize Kruskal: ", res.error);
-      alert(res.error);
-      return;
-    }
-    const draw = () => {
-      Kruskal.draw(res.kruskal);
-      requestAnimationFrame(draw);
-    };
-    console.log("Kruskal initialized");
-    console.log(res.kruskal);
-    draw();
-  })();
-</script>
+  <script>
+    import { Kruskal } from "./kruskal";
+    (() => {
+      const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const res = Kruskal.init(canvas);
+      if (res.success === false) {
+        console.error("Failed to initialize Kruskal: ", res.error);
+        alert(res.error);
+        return;
+      }
+      const draw = () => {
+        Kruskal.draw(res.kruskal);
+        requestAnimationFrame(draw);
+      };
+      console.log("Kruskal initialized");
+      console.log(res.kruskal);
+      draw();
+    })();
+  </script>
+</MainContent>

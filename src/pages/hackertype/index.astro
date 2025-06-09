@@ -1,42 +1,45 @@
 ---
+import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 ---
 
 <TitleAndMeta title="Hackertype" />
-<pre
-  id="source"
-  class="w-screen h-screen"
-  style="background-color: black; color: green;">
-</pre>
-<style>
-  body {
-    background-color: black;
-  }
-</style>
-<script>
-  import backend_shader_c from "./assets/_backend_shader.c?raw";
-  import backend_ubo_c from "./assets/_backend_ubo.c?raw";
-  import backend_c from "./assets/_backend.c?raw";
-  import main_c from "./assets/_main.c?raw";
-  const source = document.getElementById("source") as HTMLPreElement;
-  const content: string =
-    [backend_shader_c + backend_ubo_c + backend_c + main_c].join("\n") + "\n";
-  let i = 0;
-  const update = (e: Event) => {
-    let c;
-    let iterations = 0;
-    while (iterations < 3) {
-      c = content[i];
-      source.innerText += c;
-      i = (i + 1) % content.length;
-      if (c.trim() != "" || c == "\n") {
-        iterations++;
-      }
+<MainContent>
+  <pre
+    id="source"
+    class="w-screen h-screen"
+    style="background-color: black; color: green;">
+  </pre>
+  <style>
+    body {
+      background-color: black;
     }
-    const scrollingElement = document.scrollingElement || document.body;
-    scrollingElement.scrollTop = scrollingElement.scrollHeight;
-    e.preventDefault();
-  };
-  document.body.onkeydown = update;
-  document.body.onclick = update;
-</script>
+  </style>
+  <script>
+    import backend_shader_c from "./assets/_backend_shader.c?raw";
+    import backend_ubo_c from "./assets/_backend_ubo.c?raw";
+    import backend_c from "./assets/_backend.c?raw";
+    import main_c from "./assets/_main.c?raw";
+    const source = document.getElementById("source") as HTMLPreElement;
+    const content: string =
+      [backend_shader_c + backend_ubo_c + backend_c + main_c].join("\n") + "\n";
+    let i = 0;
+    const update = (e: Event) => {
+      let c;
+      let iterations = 0;
+      while (iterations < 3) {
+        c = content[i];
+        source.innerText += c;
+        i = (i + 1) % content.length;
+        if (c.trim() != "" || c == "\n") {
+          iterations++;
+        }
+      }
+      const scrollingElement = document.scrollingElement || document.body;
+      scrollingElement.scrollTop = scrollingElement.scrollHeight;
+      e.preventDefault();
+    };
+    document.body.onkeydown = update;
+    document.body.onclick = update;
+  </script>
+</MainContent>

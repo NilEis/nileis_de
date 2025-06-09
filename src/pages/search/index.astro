@@ -1,107 +1,107 @@
 ---
+import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 import { embeddings } from "./embeddings.json";
 ---
 
 <TitleAndMeta title="Vector Search" />
-
-<div
-    class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
+<MainContent
+  class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
 >
-    <input
-        type="search"
-        id="search"
-        name="search"
-        class="rounded p-2 border-2"
-        placeholder="search"
-    />
-    <div id="search_results" class="flex justify-center items-center flex-col">
-        {
-            embeddings.map((embedding) => (
-                <div>
-                    <a
-                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        href={`../${embedding.path}`}
-                    >
-                        {embedding.name}
-                    </a>
-                </div>
-            ))
-        }
-    </div>
-</div>
+  <input
+    type="search"
+    id="search"
+    name="search"
+    class="rounded p-2 border-2"
+    placeholder="search"
+  />
+  <div id="search_results" class="flex justify-center items-center flex-col">
+    {
+      embeddings.map((embedding) => (
+        <div>
+          <a
+            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            href={`../${embedding.path}`}
+          >
+            {embedding.name}
+          </a>
+        </div>
+      ))
+    }
+  </div>
+</MainContent>
 <script>
-    import { pipeline, type Tensor } from "@xenova/transformers";
-    type embedding_entry = {
-        name: string;
-        path: string;
-        vector: number[];
-    };
-    const embeddings = await (await fetch("./embeddings.json")).text();
+  import { pipeline } from "@xenova/transformers";
+  type embedding_entry = {
+    name: string;
+    path: string;
+    vector: number[];
+  };
+  const embeddings = await (await fetch("./embeddings.json")).text();
 
-    console.log("loading embedding-pipeline");
-    const embedder = await pipeline(
-        "feature-extraction",
-        "Xenova/nomic-embed-text-v1",
-    );
-    console.log("embedding-pipeline loaded");
-    const data = JSON.parse(embeddings) as embedding_entry[];
-    console.log(data);
-    const search = document.getElementById("search") as HTMLInputElement;
-    const search_results = document.getElementById(
-        "search_results",
-    ) as HTMLDivElement;
-    search.addEventListener("input", async () => {
-        const search_term = "search_query: " + search.value;
-        const search_vector = await embedder(search_term);
-        const vector = [...search_vector.data];
-        const results = data.sort((a, b) => {
-            const dist =
-                euclid_dist(a.vector, vector) - euclid_dist(b.vector, vector);
-            return dist;
-        });
-        search_results.innerHTML = "";
-        results.forEach((result) => {
-            const div = document.createElement("div");
-            const link = document.createElement("a");
-            link.href = "../" + result.path;
-            link.innerText = result.name;
-            link.classList.add(
-                "font-medium",
-                "text-blue-600",
-                "dark:text-blue-500",
-                "hover:underline",
-            );
-            div.appendChild(link);
-            search_results.appendChild(div);
-        });
+  console.log("loading embedding-pipeline");
+  const embedder = await pipeline(
+    "feature-extraction",
+    "Xenova/nomic-embed-text-v1"
+  );
+  console.log("embedding-pipeline loaded");
+  const data = JSON.parse(embeddings) as embedding_entry[];
+  console.log(data);
+  const search = document.getElementById("search") as HTMLInputElement;
+  const search_results = document.getElementById(
+    "search_results"
+  ) as HTMLDivElement;
+  search.addEventListener("input", async () => {
+    const search_term = "search_query: " + search.value;
+    const search_vector = await embedder(search_term);
+    const vector = [...search_vector.data];
+    const results = data.sort((a, b) => {
+      const dist =
+        euclid_dist(a.vector, vector) - euclid_dist(b.vector, vector);
+      return dist;
     });
+    search_results.innerHTML = "";
+    results.forEach((result) => {
+      const div = document.createElement("div");
+      const link = document.createElement("a");
+      link.href = "../" + result.path;
+      link.innerText = result.name;
+      link.classList.add(
+        "font-medium",
+        "text-blue-600",
+        "dark:text-blue-500",
+        "hover:underline"
+      );
+      div.appendChild(link);
+      search_results.appendChild(div);
+    });
+  });
 
-    function euclid_dist(v_1: number[], v_2: number[]): number {
-        return Math.sqrt(squared_dist(v_1, v_2));
-    }
+  function euclid_dist(v_1: number[], v_2: number[]): number {
+    return Math.sqrt(squared_dist(v_1, v_2));
+  }
 
-    function squared_dist(v_1: number[], v_2: number[]): number {
-        return Math.sqrt(
-            v_1.reduce((sum, val, i) => {
-                return sum + (val - v_2[i]) ** 2;
-            }, 0),
-        );
-    }
+  function squared_dist(v_1: number[], v_2: number[]): number {
+    return Math.sqrt(
+      v_1.reduce((sum, val, i) => {
+        return sum + (val - v_2[i]) ** 2;
+      }, 0)
+    );
+  }
 
-    function cos_dist(v_1: number[], v_2: number[]): number {
-        console.log("v_1");
-        console.log(v_1);
-        console.log("v_2");
-        console.log(v_2);
-        const dot_product = v_1.reduce((sum, val, i) => {
-            return sum + val * v_2[i];
-        }, 0);
-        const mag_1 = Math.sqrt(v_1.reduce((sum, val) => sum + val * val, 0));
-        const mag_2 = Math.sqrt(v_2.reduce((sum, val) => sum + val * val, 0));
-        if (mag_1 * mag_2 !== 0) {
-            return dot_product / (mag_1 * mag_2);
-        }
-        return 0;
+  function cos_dist(v_1: number[], v_2: number[]): number {
+    console.log("v_1");
+    console.log(v_1);
+    console.log("v_2");
+    console.log(v_2);
+    const dot_product = v_1.reduce((sum, val, i) => {
+      return sum + val * v_2[i];
+    }, 0);
+    const mag_1 = Math.sqrt(v_1.reduce((sum, val) => sum + val * val, 0));
+    const mag_2 = Math.sqrt(v_2.reduce((sum, val) => sum + val * val, 0));
+    if (mag_1 * mag_2 !== 0) {
+      return dot_product / (mag_1 * mag_2);
     }
+    return 0;
+  }
 </script>

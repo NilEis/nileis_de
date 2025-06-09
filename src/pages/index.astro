@@ -3,11 +3,12 @@ import Version from "../components/Version.astro";
 import TitleAndMeta from "../components/TitleAndMeta.astro";
 import LinkList from "../components/LinkList.astro";
 import { routes } from "../data/routes.ts";
+import MainContent from "../components/MainContent.astro";
 ---
 
 <TitleAndMeta />
 <div class="sr-only" id="bg-description"></div>
-<div
+<MainContent
   id="background"
   class={`bg-black bg-cover bg-no-repeat bg-center flex justify-center items-center h-screen w-screen`}
   aria-describedby="bg-description"
@@ -43,7 +44,7 @@ import { routes } from "../data/routes.ts";
     id="date_div"
   >
   </div>
-</div>
+</MainContent>
 
 <script>
   import { renderBackground } from "./main.ts";

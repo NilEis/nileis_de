@@ -1,4 +1,5 @@
 ---
+import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 import "./_main.css";
 ---
@@ -7,16 +8,16 @@ import "./_main.css";
 
 <script is:inline src="jszip.min.js"></script>
 
-<body>
+<MainContent>
   <a href="./LICENSE">jszip license</a>
-  <br>
+  <br />
   <input type="file" id="file_input" accept=".zip, .txt" />
   <br />
   <code id="num_of_nodes"></code>
   <div id="chat">
     <div class="message">Hallo</div>
   </div>
-</body>
+</MainContent>
 
 <script>
   import { main } from "./main.js";
