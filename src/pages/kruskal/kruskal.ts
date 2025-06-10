@@ -1,5 +1,5 @@
-import main_frag from "./shader/main.frag?raw";
-import main_vert from "./shader/main.vert?raw";
+import main_frag from "./shader/_main.frag?raw";
+import main_vert from "./shader/_main.vert?raw";
 import { webgl } from "./webgl";
 
 type WebGL =
