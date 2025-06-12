@@ -1,12 +1,15 @@
 ---
-import MainContent from './MainContent.astro';
+import MainContent from "./MainContent.astro";
+import TitleAndMeta from "./TitleAndMeta.astro";
 
 interface Props {
+  title: string;
   class?: string;
   id?: string;
 }
 
-const { class: css = "", id = "" } = Astro.props;
+const { class: css = "", id = "", title } = Astro.props;
 ---
 
+<TitleAndMeta title={`${title}`} />
 <MainContent class={`${css}`} id={`${id}`}><slot /></MainContent>

@@ -111,6 +111,11 @@ export const routes: Route[] = generateRoutes([
         children:[
           {name: "Amogus", url: "amogus/", Description: "AMOGUS"},
         ]
+  },
+  {
+    name: "Reversi",
+    url: "reversi/",
+    Description: "A clone of the game reversi"
   }
 ]);
 
