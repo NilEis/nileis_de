@@ -14,19 +14,45 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
           Array.from({ length: 64 }, (_, i) => (
             <div
               class="flex items-center justify-center border-2 border-black bg-[#008d65] text-gray-800 font-bold text-lg m-0 p-0"
-              id={`cell_${i}`}
+              id={`cell_${Math.floor(i / 8)}x${i % 8}`}
             >
               <div
-                id={`cell_piece_${i}`}
+                id={`cell_piece_${Math.floor(i / 8)}x${i % 8}`}
                 class="w-full h-full rounded-[50%] flex items-center justify-center bg-transparent transition-colors text-gray-400"
               >
-                {i}
+                {/* {Math.floor(i / 8)}x{i % 8} */}
               </div>
             </div>
           ))
         }
       </div>
     </div>
+    <div class="ml-6 space-y-4">
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Pieces</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>White</td>
+            <td id="points_white"></td>
+          </tr>
+          <tr>
+            <td>Black</td>
+            <td id="points_black"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button
+      class="absolute bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded"
+      id="restart_button"
+    >
+      Restart
+    </button>
   </div>
 </MainContent>
 
@@ -37,151 +63,234 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     NONE,
   }
 
+  const white_points = document.getElementById(
+    "points_white"
+  ) as HTMLTableCellElement;
+  const black_points = document.getElementById(
+    "points_black"
+  ) as HTMLTableCellElement;
+
   const game = {
     clickedCell: -1,
     player: Piece.WHITE,
     stepPiece: Piece.WHITE,
-    board: new Array(64),
+    board: new Array(8),
     cpu_to_play: 0,
+    won: false,
+    game_request: -1,
   };
-  for (let index = 0; index < 64; index++) {
-    game.board[index] = {
-      piece: Piece.NONE,
-      elem: document.getElementById(`cell_piece_${index}`) as HTMLDivElement,
-    };
+  for (let row = 0; row < 8; row++) {
+    game.board[row] = new Array(8);
+    for (let col = 0; col < 8; col++) {
+      game.board[row][col] = {
+        piece: Piece.NONE,
+        elem: document.getElementById(
+          `cell_piece_${row}x${col}`
+        ) as HTMLDivElement,
+      };
+    }
   }
+  document.getElementById("restart_button")!.onclick = init;
   init();
 
   function tick() {
     if (game.stepPiece !== game.player && game.cpu_to_play <= Date.now()) {
       const cpu = getMoveCPU(game.stepPiece);
-      console.log("CPU move:", cpu);
-      play(cpu, game.stepPiece);
+      if (cpu === -1) {
+        console.log("CPU has no valid moves, skipping turn.");
+      } else {
+        console.log(`CPU move: ${cpu[0]}x${cpu[1]}`);
+        play(cpu[0], cpu[1], game.stepPiece);
+      }
     } else if (game.clickedCell >= 0) {
       const index = game.clickedCell;
       game.clickedCell = -1;
       console.log("Player clicked cell:", index);
-      play(index, game.player);
+      play(Math.floor(index / 8), index % 8, game.player);
       game.cpu_to_play = Date.now() + 500;
     }
-    requestAnimationFrame(tick);
+    const whiteCount = game.board
+      .flat()
+      .filter((c) => c.piece === Piece.WHITE).length;
+    const blackCount = game.board
+      .flat()
+      .filter((c) => c.piece === Piece.BLACK).length;
+    white_points.textContent = whiteCount.toString();
+    black_points.textContent = blackCount.toString();
+    if (!game.won) {
+      game.game_request = requestAnimationFrame(tick);
+    } else {
+      game.game_request = -1;
+    }
   }
 
-  function play(index: number, player: Piece) {
-    const validMoves = getValidMoves(player);
+  function play(
+    row: number,
+    col: number,
+    player: Piece,
+    moves: number[][] | undefined = undefined
+  ) {
+    const validMoves = moves || getValidMoves(player);
     console.log("Valid moves:", validMoves);
-    if (!validMoves.includes(index)) {
+    if (!validMoves.some((move) => move[0] === row && move[1] === col)) {
       return;
     }
-    game.board[index].piece = player;
-    game.stepPiece = game.stepPiece === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
-    propagateMove(index, player);
+    game.board[row][col].piece = player;
+    propagateMove(row, col, player);
     updateBoard();
+    game.stepPiece = game.stepPiece === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+    if (getValidMoves(game.stepPiece).length === 0) {
+      game.stepPiece =
+        game.stepPiece === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+      if (getValidMoves(game.stepPiece).length === 0) {
+        game.won = true;
+      }
+    }
   }
 
-  function getMoveCPU(player: Piece): number {
+  function getMoveCPU(player: Piece): number[] | -1 {
     const validMoves = getValidMoves(player);
     if (validMoves.length === 0) {
       return -1; // No valid moves
     }
-    // Simple AI: choose a random valid move
     return validMoves[Math.floor(Math.random() * validMoves.length)];
   }
 
-  function getValidMoves(player: Piece): number[] {
-    const validMoves: number[] = [];
-    for (let i = 0; i < game.board.length; i++) {
-      if (isValidMove(i, player)) {
-        validMoves.push(i);
+  function getValidMoves(player: Piece): number[][] {
+    const validMoves: number[][] = [];
+    for (let r = 0; r < game.board.length; r++) {
+      for (let c = 0; c < game.board[r].length; c++) {
+        if (isValidMove(r, c, player)) {
+          validMoves.push([r, c]);
+        }
       }
     }
     return validMoves;
   }
 
-  function propagateMove(index: number, player: Piece): void {
-    const directions = [-1, 1, -8, 8, -9, 9, -7, 7];
-    const flips: number[] = [];
+  function propagateMove(row: number, col: number, player: Piece): void {
+    const directions = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1],
+    ];
+    const flips: number[][] = [];
     for (const dir of directions) {
-      let currentIndex = index + dir;
+      const flipIndex: number[][] = [];
+      let r = row + dir[0];
+      let c = col + dir[1];
       let foundOpponent = false;
 
-      while (currentIndex >= 0 && currentIndex < game.board.length) {
-        if (game.board[currentIndex].piece === Piece.NONE) {
+      while (inBounds(r, c)) {
+        if (game.board[r][c].piece === Piece.NONE) {
           break;
         }
-        if (game.board[currentIndex].piece !== player) {
-          foundOpponent = true;
-        } else if (foundOpponent) {
-          // Flip the pieces
-          let flipIndex = index + dir;
-          while (flipIndex !== currentIndex) {
-            flips.push(flipIndex);
-            // game.board[flipIndex].piece = player;
-            flipIndex += dir;
+        if (game.board[r][c].piece === player) {
+          if (foundOpponent) {
+            flips.push(...flipIndex);
           }
           break;
-        } else {
-          break;
         }
-        currentIndex += dir;
+        foundOpponent = true;
+        flipIndex.push([r, c]);
+        r += dir[0];
+        c += dir[1];
       }
     }
     for (const flipIndex of flips) {
-      game.board[flipIndex].piece = player;
+      game.board[flipIndex[0]][flipIndex[1]].piece = player;
     }
   }
 
-  function isValidMove(index: number, player: Piece): boolean {
-    if (game.board[index].piece !== Piece.NONE) {
+  function inBounds(r: number, c: number): boolean {
+    return (
+      r >= 0 && r < game.board.length && c >= 0 && c < game.board[r].length
+    );
+  }
+
+  function isValidMove(row: number, col: number, player: Piece): boolean {
+    if (!inBounds(row, col) || game.board[row][col].piece !== Piece.NONE) {
       return false;
     }
-    const directions = [-1, 1, -8, 8, -9, 9, -7, 7];
-    for (const dir of directions) {
-      let currentIndex = index + dir;
+
+    const directions: [number, number][] = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1],
+    ];
+
+    for (const [dRow, dCol] of directions) {
+      let r = row + dRow;
+      let c = col + dCol;
       let foundOpponent = false;
 
-      while (currentIndex >= 0 && currentIndex < game.board.length) {
-        if (game.board[currentIndex].piece === Piece.NONE) {
+      if (
+        !inBounds(r, c) ||
+        game.board[r][c].piece === Piece.NONE ||
+        game.board[r][c].piece === player
+      ) {
+        continue;
+      }
+      foundOpponent = true;
+      while (true) {
+        r += dRow;
+        c += dCol;
+        if (!inBounds(r, c) || game.board[r][c].piece === Piece.NONE) {
           break;
         }
-        if (game.board[currentIndex].piece !== player) {
-          foundOpponent = true;
-        } else if (foundOpponent) {
+        if (game.board[r][c].piece === player) {
           return true;
-        } else {
-          break;
         }
-        currentIndex += dir;
       }
     }
     return false;
   }
 
   function init() {
-    for (const c of game.board) {
-      c.piece = Piece.NONE;
+    if (game.won) {
+      game.won = false;
     }
-    game.board[27].piece = Piece.WHITE;
-    game.board[28].piece = Piece.BLACK;
-    game.board[35].piece = Piece.BLACK;
-    game.board[36].piece = Piece.WHITE;
+    if (game.game_request !== -1) {
+      cancelAnimationFrame(game.game_request);
+    }
+    for (const r of game.board) {
+      for (const c of r) {
+        c.piece = Piece.NONE;
+      }
+    }
+    game.board[3][3].piece = Piece.WHITE;
+    game.board[3][4].piece = Piece.BLACK;
+    game.board[4][3].piece = Piece.BLACK;
+    game.board[4][4].piece = Piece.WHITE;
     initCallbacks();
     updateBoard();
     tick();
   }
 
   function updateBoard() {
-    for (const c of game.board) {
-      switch (c.piece) {
-        case Piece.BLACK:
-          c.elem.style.backgroundColor = "black";
-          break;
-        case Piece.WHITE:
-          c.elem.style.backgroundColor = "white";
-          break;
-        case Piece.NONE:
-          c.elem.style.backgroundColor = "transparent";
-          break;
+    for (const r of game.board) {
+      for (const c of r) {
+        switch (c.piece) {
+          case Piece.BLACK:
+            c.elem.style.backgroundColor = "black";
+            break;
+          case Piece.WHITE:
+            c.elem.style.backgroundColor = "white";
+            break;
+          case Piece.NONE:
+            c.elem.style.backgroundColor = "transparent";
+            break;
+        }
       }
     }
   }
@@ -191,7 +300,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     grid.childNodes.forEach((cell, index) => {
       index -= 1;
       const piece = document.getElementById(
-        `cell_piece_${index}`
+        `cell_piece_${Math.floor(index / 8)}x${index % 8}`
       ) as HTMLDivElement;
       (cell as HTMLDivElement).onclick = () => {
         game.clickedCell = index;
