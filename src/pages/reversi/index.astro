@@ -18,8 +18,10 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
             >
               <div
                 id={`cell_piece_${i}`}
-                class="w-full h-full rounded-[50%] bg-transparent transition-colors"
-              />
+                class="w-full h-full rounded-[50%] flex items-center justify-center bg-transparent transition-colors text-gray-400"
+              >
+                {i}
+              </div>
             </div>
           ))
         }
@@ -35,29 +37,141 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     NONE,
   }
 
-  const board = new Array(64);
+  const game = {
+    clickedCell: -1,
+    player: Piece.WHITE,
+    stepPiece: Piece.WHITE,
+    board: new Array(64),
+    cpu_to_play: 0,
+  };
   for (let index = 0; index < 64; index++) {
-    board[index] = {
+    game.board[index] = {
       piece: Piece.NONE,
       elem: document.getElementById(`cell_piece_${index}`) as HTMLDivElement,
     };
   }
   init();
 
-  function init() {
-    for (const c of board) {
-      c.piece = Piece.NONE;
+  function tick() {
+    if (game.stepPiece !== game.player && game.cpu_to_play <= Date.now()) {
+      const cpu = getMoveCPU(game.stepPiece);
+      console.log("CPU move:", cpu);
+      play(cpu, game.stepPiece);
+    } else if (game.clickedCell >= 0) {
+      const index = game.clickedCell;
+      game.clickedCell = -1;
+      console.log("Player clicked cell:", index);
+      play(index, game.player);
+      game.cpu_to_play = Date.now() + 500;
     }
-    board[27].piece = Piece.WHITE;
-    board[28].piece = Piece.BLACK;
-    board[35].piece = Piece.BLACK;
-    board[36].piece = Piece.WHITE;
-    initCallbacks();
+    requestAnimationFrame(tick);
+  }
+
+  function play(index: number, player: Piece) {
+    const validMoves = getValidMoves(player);
+    console.log("Valid moves:", validMoves);
+    if (!validMoves.includes(index)) {
+      return;
+    }
+    game.board[index].piece = player;
+    game.stepPiece = game.stepPiece === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+    propagateMove(index, player);
     updateBoard();
   }
 
+  function getMoveCPU(player: Piece): number {
+    const validMoves = getValidMoves(player);
+    if (validMoves.length === 0) {
+      return -1; // No valid moves
+    }
+    // Simple AI: choose a random valid move
+    return validMoves[Math.floor(Math.random() * validMoves.length)];
+  }
+
+  function getValidMoves(player: Piece): number[] {
+    const validMoves: number[] = [];
+    for (let i = 0; i < game.board.length; i++) {
+      if (isValidMove(i, player)) {
+        validMoves.push(i);
+      }
+    }
+    return validMoves;
+  }
+
+  function propagateMove(index: number, player: Piece): void {
+    const directions = [-1, 1, -8, 8, -9, 9, -7, 7];
+    const flips: number[] = [];
+    for (const dir of directions) {
+      let currentIndex = index + dir;
+      let foundOpponent = false;
+
+      while (currentIndex >= 0 && currentIndex < game.board.length) {
+        if (game.board[currentIndex].piece === Piece.NONE) {
+          break;
+        }
+        if (game.board[currentIndex].piece !== player) {
+          foundOpponent = true;
+        } else if (foundOpponent) {
+          // Flip the pieces
+          let flipIndex = index + dir;
+          while (flipIndex !== currentIndex) {
+            flips.push(flipIndex);
+            // game.board[flipIndex].piece = player;
+            flipIndex += dir;
+          }
+          break;
+        } else {
+          break;
+        }
+        currentIndex += dir;
+      }
+    }
+    for (const flipIndex of flips) {
+      game.board[flipIndex].piece = player;
+    }
+  }
+
+  function isValidMove(index: number, player: Piece): boolean {
+    if (game.board[index].piece !== Piece.NONE) {
+      return false;
+    }
+    const directions = [-1, 1, -8, 8, -9, 9, -7, 7];
+    for (const dir of directions) {
+      let currentIndex = index + dir;
+      let foundOpponent = false;
+
+      while (currentIndex >= 0 && currentIndex < game.board.length) {
+        if (game.board[currentIndex].piece === Piece.NONE) {
+          break;
+        }
+        if (game.board[currentIndex].piece !== player) {
+          foundOpponent = true;
+        } else if (foundOpponent) {
+          return true;
+        } else {
+          break;
+        }
+        currentIndex += dir;
+      }
+    }
+    return false;
+  }
+
+  function init() {
+    for (const c of game.board) {
+      c.piece = Piece.NONE;
+    }
+    game.board[27].piece = Piece.WHITE;
+    game.board[28].piece = Piece.BLACK;
+    game.board[35].piece = Piece.BLACK;
+    game.board[36].piece = Piece.WHITE;
+    initCallbacks();
+    updateBoard();
+    tick();
+  }
+
   function updateBoard() {
-    for (const c of board) {
+    for (const c of game.board) {
       switch (c.piece) {
         case Piece.BLACK:
           c.elem.style.backgroundColor = "black";
@@ -79,7 +193,9 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       const piece = document.getElementById(
         `cell_piece_${index}`
       ) as HTMLDivElement;
-      (cell as HTMLDivElement).onclick = () => {};
+      (cell as HTMLDivElement).onclick = () => {
+        game.clickedCell = index;
+      };
     });
   }
 </script>
