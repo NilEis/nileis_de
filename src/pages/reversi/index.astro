@@ -72,7 +72,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
 
   const game = {
     clickedCell: -1,
-    player: Piece.WHITE,
+    player: Piece.BLACK,
     stepPiece: Piece.WHITE,
     board: new Array(8),
     cpu_to_play: 0,
@@ -102,7 +102,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
         console.log(`CPU move: ${cpu[0]}x${cpu[1]}`);
         play(cpu[0], cpu[1], game.stepPiece);
       }
-    } else if (game.clickedCell >= 0) {
+    } else if (game.stepPiece === game.player && game.clickedCell >= 0) {
       const index = game.clickedCell;
       game.clickedCell = -1;
       console.log("Player clicked cell:", index);
@@ -272,6 +272,10 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     game.board[3][4].piece = Piece.BLACK;
     game.board[4][3].piece = Piece.BLACK;
     game.board[4][4].piece = Piece.WHITE;
+    game.player = game.player === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
+    game.stepPiece = Piece.WHITE;
+    game.clickedCell = -1;
+    game.cpu_to_play = 0;
     initCallbacks();
     updateBoard();
     tick();
