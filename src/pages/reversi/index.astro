@@ -29,12 +29,57 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
 </MainContent>
 
 <script>
-  const grid = document.getElementById("reversi_grid") as HTMLDivElement;
-  grid.childNodes.forEach((cell, index) => {
-    index -= 1;
-    cell.addEventListener("click", () => {
-    //   alert(`Cell ${index} clicked!`);
-      document.getElementById(`cell_piece_${index}`)!.style.backgroundColor = "#ffffff";
+  enum Piece {
+    BLACK,
+    WHITE,
+    NONE,
+  }
+
+  const board = new Array(64);
+  for (let index = 0; index < 64; index++) {
+    board[index] = {
+      piece: Piece.NONE,
+      elem: document.getElementById(`cell_piece_${index}`) as HTMLDivElement,
+    };
+  }
+  init();
+
+  function init() {
+    for (const c of board) {
+      c.piece = Piece.NONE;
+    }
+    board[27].piece = Piece.WHITE;
+    board[28].piece = Piece.BLACK;
+    board[35].piece = Piece.BLACK;
+    board[36].piece = Piece.WHITE;
+    initCallbacks();
+    updateBoard();
+  }
+
+  function updateBoard() {
+    for (const c of board) {
+      switch (c.piece) {
+        case Piece.BLACK:
+          c.elem.style.backgroundColor = "black";
+          break;
+        case Piece.WHITE:
+          c.elem.style.backgroundColor = "white";
+          break;
+        case Piece.NONE:
+          c.elem.style.backgroundColor = "transparent";
+          break;
+      }
+    }
+  }
+
+  function initCallbacks() {
+    const grid = document.getElementById("reversi_grid") as HTMLDivElement;
+    grid.childNodes.forEach((cell, index) => {
+      index -= 1;
+      const piece = document.getElementById(
+        `cell_piece_${index}`
+      ) as HTMLDivElement;
+      (cell as HTMLDivElement).onclick = () => {};
     });
-  });
+  }
 </script>
