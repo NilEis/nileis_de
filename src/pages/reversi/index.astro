@@ -117,10 +117,12 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       .filter((c) => c.piece === Piece.BLACK).length;
     white_points.textContent = whiteCount.toString();
     black_points.textContent = blackCount.toString();
-    if (!game.won) {
-      game.game_request = requestAnimationFrame(tick);
-    } else {
+    if (game.won) {
       game.game_request = -1;
+      const winner = whiteCount > blackCount ? "White" : "Black";
+      alert(`Game Over! ${winner} wins!`);
+    } else {
+      game.game_request = requestAnimationFrame(tick);
     }
   }
 
