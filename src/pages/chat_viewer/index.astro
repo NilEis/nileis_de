@@ -1,26 +1,142 @@
 ---
 import MainContent from "../../components/MainContent.astro";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
-import "./_main.css";
 ---
+
+<style>
+  .message {
+    max-width: 25%;
+  }
+  @media (min-width: 768px) {
+    .message {
+      max-width: 50%;
+    }
+  }
+  .message .content span {
+    display: block;
+    white-space: pre-wrap;
+  }
+</style>
 
 <TitleAndMeta title="Whatsapp-backup-viewer" />
 
-<script is:inline src="jszip.min.js"></script>
-
-<MainContent>
-  <a href="./LICENSE">jszip license</a>
-  <br />
-  <input type="file" id="file_input" accept=".zip, .txt" />
-  <br />
-  <code id="num_of_nodes"></code>
-  <div id="chat">
-    <div class="message">Hallo</div>
+<MainContent class="flex flex-col h-screen">
+  <header class="p-4 bg-gray-100">
+    <input type="file" id="file_input" accept=".zip, .txt" />
+  </header>
+  <div
+    id="chat_div"
+    class="flex-1 flex flex-col justify-end items-center
+           w-full p-4 space-y-2"
+  >
   </div>
 </MainContent>
 
-<script>
-  import { main } from "./main.js";
+<template id="chat_message">
+  <section class="message border rounded-md p-2 mb-4">
+    <div class="content"></div>
+    <div class="timestamp text-xs text-gray-500 mt-1"></div>
+  </section>
+</template>
 
-  main();
+<script>
+  import { unzip } from "unzipit";
+  import type { ZipInfo } from "unzipit";
+
+  const fileInput = document.getElementById("file_input") as HTMLInputElement;
+  const chatDiv = document.getElementById("chat_div")!;
+  const tmpl = document.getElementById("chat_message") as HTMLTemplateElement;
+
+  fileInput.onchange = (e) => {
+    if (!fileInput.files || fileInput.files.length === 0) {
+      return;
+    }
+    const file = fileInput.files[0];
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const res = await unzip(event.target?.result as ArrayBuffer);
+      await loadChat(res);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+  async function loadChat(chat: ZipInfo) {
+    const chatFile = (await chat.entries["_chat.txt"].text()).replaceAll(
+      "‎",
+      ""
+    );
+    chatDiv.innerHTML = "";
+    const chats = chatFile.split(
+      /^(?=\[\d{2}.\d{2}.\d{2}, \d{2}:\d{2}:\d{2}\])/gm
+    );
+    for (const block of chats) {
+      if (!block.trim()) continue;
+      const match = block.match(/^\[(.+?)\]\s*(.+?):\s*([\s\S]*)$/);
+      if (!match) continue;
+
+      const [, timestamp, author, content] = match;
+      const clone = tmpl.content.cloneNode(true) as HTMLElement;
+      const section = clone.querySelector("section") as HTMLElement;
+      const contentDiv = section.querySelector(".content")!;
+      const stampDiv = section.querySelector(".timestamp")!;
+      stampDiv.textContent = `${author}, ${timestamp}`;
+      const attachMatch = content.match(/<Anhang:\s*(.+?)>/);
+      if (attachMatch) {
+        const fileName = attachMatch[1].trim();
+        const ext = fileName.split(".").pop()!.toLowerCase();
+        let media_text: HTMLElement | null = null;
+
+        if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+          const img = document.createElement("img");
+          img.src = URL.createObjectURL(
+            await chat.entries[`${fileName}`].blob()
+          );
+          img.alt = fileName;
+          img.className = "max-w-full rounded";
+          contentDiv.appendChild(img);
+        } else if (["mp4", "webm", "ogg"].includes(ext)) {
+          const vid = document.createElement("video");
+          vid.src = URL.createObjectURL(
+            await chat.entries[`${fileName}`].blob()
+          );
+          vid.controls = true;
+          vid.className = "max-w-full rounded";
+          contentDiv.appendChild(vid);
+        } else if (["mp3", "wav", "ogg", "opus"].includes(ext)) {
+          const audio = document.createElement("audio");
+          audio.src = URL.createObjectURL(
+            await chat.entries[`${fileName}`].blob()
+          );
+          audio.controls = true;
+          contentDiv.appendChild(audio);
+        } else {
+          media_text = document.createElement("a");
+          media_text.textContent = `📎 ${fileName}`;
+          (media_text as HTMLAnchorElement).download = fileName;
+          (media_text as HTMLAnchorElement).href = URL.createObjectURL(
+            await chat.entries[`${fileName}`].blob()
+          );
+          contentDiv.appendChild(media_text);
+        }
+        const parts = content.replaceAll(/<Anhang:\s*.+?>/g, "");
+        if (parts.trim()) {
+          if (media_text === null) {
+            media_text = document.createElement("span");
+          }
+          media_text.textContent = parts.trim();
+          contentDiv.appendChild(media_text);
+        }
+      } else {
+        const span = document.createElement("span");
+        span.textContent = content.trim();
+        contentDiv.appendChild(span);
+      }
+      chatDiv.appendChild(section);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+      await delay(10);
+    }
+  }
 </script>
