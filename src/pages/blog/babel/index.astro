@@ -1,0 +1,22 @@
+---
+import MainContent from "../../../components/MainContent.astro";
+import TitleAndMeta from "../../../components/TitleAndMeta.astro";
+import { secret_code } from "../../../data/secret_code";
+import { generate } from "generate-passphrase";
+const entries = new Array(10000).fill(0).map(() =>
+    generate({
+        length: 4,
+        separator: "_",
+    }),
+);
+entries[512] = secret_code;
+---
+
+<TitleAndMeta title="Babel" />
+<MainContent>
+    {
+        entries.map((entry,index) => {
+            return <p id={`${index}`}>{entry}</p>;
+        })
+    }
+</MainContent>

@@ -70,9 +70,10 @@ export const routes: Route[] = generateRoutes([
         'A tool that prints source code in a hacker style. It is a joke.'
   },
   {
-    name: "Kruskal minimum spanning tree",
-    url: "kruskal/" ,
-    Description: "A tool to visualize the Kruskal algorithm for finding the minimum spanning tree of a graph."
+    name: 'Kruskal minimum spanning tree',
+    url: 'kruskal/',
+    Description:
+        'A tool to visualize the Kruskal algorithm for finding the minimum spanning tree of a graph.'
   },
   {
     name: 'Whatsapp backup viewer',
@@ -108,15 +109,12 @@ export const routes: Route[] = generateRoutes([
     url: 'blog/',
     Description:
         'This page hosts a collection of blog posts or articles. It features a clean layout with a list of clickable titles, each leading to a specific blog post. Users can navigate through the posts and read detailed articles on various topics. The page ensures readability and accessibility for an engaging reading experience. AMOGUS',
-        children:[
-          {name: "Amogus", url: "amogus/", Description: "AMOGUS"},
-        ]
+    children: [
+      {name: 'Amogus', url: 'amogus/', Description: 'AMOGUS'},
+      {name: 'Babel', url: 'babel/', Description: 'Babel 😳'},
+    ]
   },
-  {
-    name: "Reversi",
-    url: "reversi/",
-    Description: "A clone of the game reversi"
-  }
+  {name: 'Reversi', url: 'reversi/', Description: 'A clone of the game reversi'}
 ]);
 
 export const path_routes: Map<string, Route> = generatePathRoutes(routes, '');

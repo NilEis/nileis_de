@@ -1,0 +1,16 @@
+---
+import MainContent from "../../components/MainContent.astro";
+import TitleAndMeta from "../../components/TitleAndMeta.astro";
+import { secret_code } from "../../data/secret_code";
+
+export function getStaticPaths() {
+  return [{ params: { code: `${secret_code}` } }];
+}
+
+const { code } = Astro.params;
+---
+
+<TitleAndMeta title="Geheim" />
+<MainContent>
+  Der geheime Code ist: <span class="font-bold">{code}</span>
+</MainContent>
