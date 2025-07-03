@@ -63,14 +63,31 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     NONE,
   }
 
+  type Cell = {
+    piece: Piece;
+    elem: HTMLDivElement;
+  };
+
+  type Board = Array<Array<Cell>>;
+
+  type Game = {
+    clickedCell: number;
+    player: Piece;
+    stepPiece: Piece;
+    board: Board;
+    cpu_to_play: number;
+    won: boolean;
+    game_request: number;
+  };
+
   const white_points = document.getElementById(
-    "points_white"
+    "points_white",
   ) as HTMLTableCellElement;
   const black_points = document.getElementById(
-    "points_black"
+    "points_black",
   ) as HTMLTableCellElement;
 
-  const game = {
+  const game: Game = {
     clickedCell: -1,
     player: Piece.BLACK,
     stepPiece: Piece.WHITE,
@@ -85,7 +102,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       game.board[row][col] = {
         piece: Piece.NONE,
         elem: document.getElementById(
-          `cell_piece_${row}x${col}`
+          `cell_piece_${row}x${col}`,
         ) as HTMLDivElement,
       };
     }
@@ -130,7 +147,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     row: number,
     col: number,
     player: Piece,
-    moves: number[][] | undefined = undefined
+    moves: number[][] | undefined = undefined,
   ) {
     const validMoves = moves || getValidMoves(player);
     console.log("Valid moves:", validMoves);
@@ -138,7 +155,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       return;
     }
     game.board[row][col].piece = player;
-    propagateMove(row, col, player);
+    propagateMove(row, col, player, game.board);
     updateBoard();
     game.stepPiece = game.stepPiece === Piece.WHITE ? Piece.BLACK : Piece.WHITE;
     if (getValidMoves(game.stepPiece).length === 0) {
@@ -170,7 +187,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     return validMoves;
   }
 
-  function propagateMove(row: number, col: number, player: Piece): void {
+  function propagateMove(row: number, col: number, player: Piece, board: Board): void {
     const directions = [
       [0, 1],
       [0, -1],
@@ -189,10 +206,10 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       let foundOpponent = false;
 
       while (inBounds(r, c)) {
-        if (game.board[r][c].piece === Piece.NONE) {
+        if (board[r][c].piece === Piece.NONE) {
           break;
         }
-        if (game.board[r][c].piece === player) {
+        if (board[r][c].piece === player) {
           if (foundOpponent) {
             flips.push(...flipIndex);
           }
@@ -205,7 +222,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
       }
     }
     for (const flipIndex of flips) {
-      game.board[flipIndex[0]][flipIndex[1]].piece = player;
+      board[flipIndex[0]][flipIndex[1]].piece = player;
     }
   }
 
@@ -258,7 +275,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     return false;
   }
 
-  function init() {
+  function init(): void {
     if (game.won) {
       game.won = false;
     }
@@ -283,7 +300,7 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     tick();
   }
 
-  function updateBoard() {
+  function updateBoard(): void {
     for (const r of game.board) {
       for (const c of r) {
         switch (c.piece) {
@@ -301,12 +318,12 @@ import TitleAndMeta from "../../components/TitleAndMeta.astro";
     }
   }
 
-  function initCallbacks() {
+  function initCallbacks():void {
     const grid = document.getElementById("reversi_grid") as HTMLDivElement;
     grid.childNodes.forEach((cell, index) => {
       index -= 1;
       const piece = document.getElementById(
-        `cell_piece_${Math.floor(index / 8)}x${index % 8}`
+        `cell_piece_${Math.floor(index / 8)}x${index % 8}`,
       ) as HTMLDivElement;
       (cell as HTMLDivElement).onclick = () => {
         game.clickedCell = index;
