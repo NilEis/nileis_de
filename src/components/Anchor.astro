@@ -1,18 +1,29 @@
 ---
-interface Props
-{
+interface Props {
   href?: string;
+  reload?: boolean;
 }
 
-const { href = "#", ...rest } = Astro.props;
+const { href = "#", reload = false, ...rest } = Astro.props;
 ---
 
-<a
-  href={href}
-  class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-  {...rest}
->
-  <slot>
-    {href}
-  </slot>
-</a>
+{
+  reload ? (
+    <a
+      data-astro-reload
+      href={href}
+      class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+      {...rest}
+    >
+      <slot>{href}</slot>
+    </a>
+  ) : (
+    <a
+      href={href}
+      class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+      {...rest}
+    >
+      <slot>{href}</slot>
+    </a>
+  )
+}

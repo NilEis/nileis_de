@@ -2,7 +2,8 @@
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 import LinkList from "../../components/LinkList.astro";
 import MainContent from "../../components/MainContent.astro";
-import { path_routes } from "../../data/routes.ts";
+import { path_routes, type Route } from "../../data/routes.ts";
+const entries = path_routes.get("blog/")?.children || new Array<Route>();
 ---
 
 <TitleAndMeta title="Blog" />
@@ -10,7 +11,7 @@ import { path_routes } from "../../data/routes.ts";
   <div
     class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
   >
-    <LinkList sites={path_routes.get("blog/")?.children ?? []}>
+    <LinkList sites={entries}>
       <h3 slot="pre_list">Haher</h3>
     </LinkList>
   </div>

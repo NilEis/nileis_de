@@ -1,6 +1,5 @@
 ---
-import MainContent from "../../../components/MainContent.astro";
-import TitleAndMeta from "../../../components/TitleAndMeta.astro";
+import BlogEntry from "../../../components/BlogEntry.astro";
 import { secret_code } from "../../../data/secret_code";
 import { generate } from "generate-passphrase";
 const entries = new Array(10000).fill(0).map(() =>
@@ -12,11 +11,16 @@ const entries = new Array(10000).fill(0).map(() =>
 entries[512] = secret_code;
 ---
 
-<TitleAndMeta title="Babel" />
-<MainContent>
-    {
-        entries.map((entry,index) => {
-            return <p id={`${index}`}>{entry}</p>;
-        })
-    }
-</MainContent>
+<BlogEntry
+    title="Babel"
+    class="w-full h-screen flex justify-center"
+>
+    <div>
+        {
+            entries.map((entry, index) => (
+                    <p id={`${index}`}>{entry}</p>
+                    <br />
+            ))
+        }
+    </div>
+</BlogEntry>

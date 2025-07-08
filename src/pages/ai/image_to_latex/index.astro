@@ -2,6 +2,10 @@
 import LoadingAnimation from "../../../components/LoadingAnimation.astro";
 import TitleAndMeta from "../../../components/TitleAndMeta.astro";
 import MainContent from "../../../components/MainContent.astro";
+
+const MathJaxScript: string = await fetch(
+  "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+).then((response) => response.text());
 ---
 
 <TitleAndMeta title="Image to Latex" />
@@ -16,10 +20,7 @@ import MainContent from "../../../components/MainContent.astro";
       },
     };
   </script>
-  <script
-    id="MathJax-script"
-    async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script is:inline async defer id="MathJax-script" set:html={MathJaxScript} />
 
   <div id="main_content" class="flex justify-center items-center h-screen">
     <div class="grid grid-cols-3 grid-rows-1 gap-4">

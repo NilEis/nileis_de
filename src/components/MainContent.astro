@@ -7,4 +7,4 @@ interface Props {
 const { class: css = "", id = "" } = Astro.props;
 ---
 
-<main class={`${css}`} id={`${id}`}><slot /></main>
+<main class={`${css}`} id={`${id}`} transition:animate="fade"><slot /></main>

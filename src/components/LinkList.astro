@@ -1,8 +1,8 @@
 ---
+import type { Route } from "../data/routes";
 import Anchor from "./Anchor.astro";
-interface Props
-{
-  sites: { name: string; url: string }[];
+interface Props {
+  sites: Route[];
   outerClass?: string;
   middleClass?: string;
   innerClass?: string;
@@ -12,7 +12,7 @@ const {
   sites = [],
   outerClass = "",
   middleClass = "",
-  innerClass = ""
+  innerClass = "",
 } = Astro.props;
 ---
 
@@ -21,16 +21,17 @@ const {
     <slot name="pre_list" />
     <ul class={`list-disc list-inside max-w-md ${innerClass}`}>
       {
-        sites.map ((site) =>
-        {
+        sites.map((site) => {
           return (
             <li>
-              <Anchor href={site.url}>{site.name}</Anchor>
+              <Anchor href={site.absoluteUrl(Astro.url.origin)} reload={site.reload}>
+                {site.name}
+              </Anchor>
             </li>
           );
         })
       }
-      <slot/>
+      <slot />
     </ul>
     <slot name="after-list" />
   </div>
