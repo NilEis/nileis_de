@@ -4,7 +4,7 @@ import MainContent from "../../components/MainContent.astro";
 ---
 
 <TitleAndMeta title="Lua" />
-<div class="flex flex-col h-screen w-screen">
+<div class="flex flex-col h-screen w-screen overflow-hidden">
   <!-- Top bar with Run button -->
   <header class="flex justify-end items-center h-12 bg-gray-800 px-4">
     <button
@@ -21,7 +21,7 @@ import MainContent from "../../components/MainContent.astro";
     >
     </div>
     <footer
-      class="h-full w-1/4 bg-gray-800 p-4 overflow-y-auto text-sm text-green-400 font-mono"
+      class="h-[90vh] w-1/4 bg-gray-800 p-4 overflow-y-auto text-sm text-green-400 font-mono flex-shrink-0"
     >
       <div class="flex justify-end items-center h-8 bg-gray-700 px-2">
         <button
