@@ -1,98 +1,69 @@
 ---
-import "./_lua_wasm.css";
-import "./_prism.css";
 import TitleAndMeta from "../../components/TitleAndMeta.astro";
 import MainContent from "../../components/MainContent.astro";
 ---
 
 <TitleAndMeta title="Lua" />
-<MainContent>
-  <script src="./prism.js">
-    import Prism from "./prism";
-  </script>
-  <div id="code_container">
-    <pre
-      id="code_block"><code class="language-lua" contenteditable="true" id="luain">print("Hello World!")</code></pre>
-  </div>
-  <script is:inline>
-    function get_cursor_pos(elem) {
-      const sel = window.getSelection();
-      if (sel.rangeCount === 0) {
-        return { start: 0, end: 0, sel };
-      }
-      const range = sel.getRangeAt(0);
-      const preCaretRange = range.cloneRange();
-      preCaretRange.selectNodeContents(elem);
-      preCaretRange.setEnd(range.startContainer, range.startOffset);
-      const start = preCaretRange.toString().length;
-      preCaretRange.setEnd(range.endContainer, range.endOffset);
-      const end = preCaretRange.toString().length;
-      return { start, end, sel };
-    }
-    function set_cursor_pos(elem, posi) {
-      const createRange = (node, rangePos) => {
-        let range = document.createRange();
-        range.selectNode(node);
-        range.setStart(node, 0);
+<div class="flex flex-col h-screen w-screen">
+  <!-- Top bar with Run button -->
+  <header class="flex justify-end items-center h-12 bg-gray-800 px-4">
+    <button
+      id="run"
+      class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+    >
+      Run
+    </button>
+  </header>
+  <MainContent class="flex-1 flex justify-center items-stretch bg-gray-900 p-4">
+    <div
+      id="luain"
+      class="flex-1 max-w-4xl mx-auto bg-gray-800 rounded shadow-lg overflow-hidden"
+    >
+    </div>
+    <footer
+      class="h-full w-1/4 bg-gray-800 p-4 overflow-y-auto text-sm text-green-400 font-mono"
+    >
+      <div class="flex justify-end items-center h-8 bg-gray-700 px-2">
+        <button
+          id="clear"
+          class="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
+          onclick="document.getElementById('output').innerHTML = ''"
+        >
+          Clear
+        </button>
+      </div>
+      <div id="output"></div>
+    </footer>
+    <script>
+      import { lua_wasm } from "./lua_wasm.js";
+      import * as monaco from "monaco-editor";
+      import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+      // import luaWorker from "monaco-editor/esm/vs/language/lua/lua.worker?worker";
 
-        let pos = 0;
-        const stack = [node];
-        while (stack.length > 0) {
-          const current = stack.pop();
-
-          if (current.nodeType === Node.TEXT_NODE) {
-            const len = current.textContent.length;
-            if (pos + len >= rangePos.end) {
-              range.setStart(current, rangePos.end - pos);
-              range.setEnd(current, rangePos.end - pos);
-              return range;
-            }
-            pos += len;
-          } else if (current.childNodes && current.childNodes.length > 0) {
-            for (let i = current.childNodes.length - 1; i >= 0; i--) {
-              stack.push(current.childNodes[i]);
-            }
+      self.MonacoEnvironment = {
+        getWorker(workerId, label) {
+          if (label === "lua") {
+            // return new luaWorker();
           }
-        }
-
-        // The target position is greater than the
-        // length of the contenteditable element.
-        range.setStart(node, node.childNodes.length);
-        range.setEnd(node, node.childNodes.length);
-        return range;
+          return new editorWorker();
+        },
       };
-      const range = createRange(elem, posi);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
 
-    document.getElementById("luain").oninput = () => {
-      const pos = get_cursor_pos(document.getElementById("luain"));
-      //console.log(pos);
-      Prism.highlightElement(document.getElementById("luain"));
-      set_cursor_pos(document.getElementById("luain"), pos);
-    };
-  </script>
-  <button id="run">Run</button>
-  <p id="output"></p>
-  <script>
-    import { lua_wasm } from "./lua_wasm.js";
-    let execute: (param: string) => void;
-    window.onload = async () => {
-      execute = (await lua_wasm()).cwrap("run_lua", null, ["string"]);
-      window.execute = execute;
-      const run = (document.getElementById("run")!.onclick = () => {
-        const e = (document.getElementById("luain") as HTMLDivElement)
-          .innerText;
-        execute(e);
+      const editor = monaco.editor.create(document.getElementById("luain")!, {
+        language: "lua",
+        value: 'print("Hello World!")',
+        theme: "vs-dark",
       });
-      document.getElementById("luain")!.onkeydown = (e: KeyboardEvent) => {
-        if (!(e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
-          return;
-        }
-        run();
+
+      let execute: (param: string) => void;
+      window.onload = async () => {
+        execute = (await lua_wasm()).cwrap("run_lua", null, ["string"]);
+        window.execute = execute;
+        const run = (document.getElementById("run")!.onclick = () => {
+          const e = editor.getValue();
+          execute(e);
+        });
       };
-    };
-  </script>
-</MainContent>
+    </script>
+  </MainContent>
+</div>

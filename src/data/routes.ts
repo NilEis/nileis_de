@@ -67,6 +67,7 @@ export const routes: Route[] = generateRoutes([
   {
     name: 'lua',
     url: 'lua_wasm/',
+    reload: true,
     Description: 'A lua interpreter written in C compiled to wasm'
   },
   {
