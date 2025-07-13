@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: nileis.de
+type: software
+message: Please cite using metadata from this file
+authors:
+  - given-names: Nils
+    family-names: Eisenach
+    email: cite_nileis@nileis.de
+    orcid: 'https://orcid.org/0009-0006-1072-3976'
