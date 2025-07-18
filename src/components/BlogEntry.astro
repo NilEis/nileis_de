@@ -16,9 +16,10 @@ interface Props {
 const { class: css = "", id = "", title } = Astro.props;
 ---
 
-<TitleAndMeta title={`${title}`}>
-</TitleAndMeta>
-<Sidebare title={title} items={entries} transition:persist />
-<MainContent class={`${css}`} id={`${id}`} transition:animate="fade">
-  <slot />
-</MainContent>
+<TitleAndMeta title={`${title}`} />
+<div class="flex">
+  <Sidebare title={title} items={entries} transition:persist />
+  <MainContent class={`${css}`} id={`${id}`} transition:animate="fade">
+    <slot />
+  </MainContent>
+</div>

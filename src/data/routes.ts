@@ -127,6 +127,18 @@ export const routes: Route[] = generateRoutes([
     children: [
       {name: 'Amogus', url: 'amogus/', reload: true, Description: 'AMOGUS'},
       {name: 'Babel', url: 'babel/', Description: 'Babel 😳'},
+      {
+        name: 'Recipes',
+        url: 'recipes/',
+        Description: 'Some recipes idk.',
+        children: [
+          {
+            name: 'Taiwanese beef noodle soup',
+            url: '牛肉麵/',
+            Description: 'A Taiwanese beef noodle soup recipe. (牛肉麵)'
+          },
+        ]
+      },
     ]
   },
   {name: 'Reversi', url: 'reversi/', Description: 'A clone of the game reversi'}

@@ -1,0 +1,18 @@
+---
+import TitleAndMeta from "../../../components/TitleAndMeta.astro";
+import LinkList from "../../../components/LinkList.astro";
+import MainContent from "../../../components/MainContent.astro";
+import { path_routes, type Route } from "../../../data/routes";
+const entries = path_routes.get("blog/recipes/")?.children || new Array<Route>();
+---
+
+<TitleAndMeta title="Recipes" />
+<MainContent>
+  <div
+    class="bg-blackflex justify-center items-center h-screen w-screen flex flex-col"
+  >
+    <LinkList sites={entries}>
+      <h3 slot="pre_list">Nom</h3>
+    </LinkList>
+  </div>
+</MainContent>
