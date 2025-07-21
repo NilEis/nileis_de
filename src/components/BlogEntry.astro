@@ -4,6 +4,7 @@ import MainContent from "./MainContent.astro";
 import TitleAndMeta from "./TitleAndMeta.astro";
 import Sidebare from "./Sidebare.astro";
 import { path_routes, type Route } from "../data/routes";
+import LatexSupport from "./LatexSupport.astro";
 
 const entries = path_routes.get("blog/")?.children || new Array<Route>();
 
@@ -17,9 +18,10 @@ const { class: css = "", id = "", title } = Astro.props;
 ---
 
 <TitleAndMeta title={`${title}`} />
-<div class="flex">
+<LatexSupport />
+<div class="flex min-h-screen">
   <Sidebare title={title} items={entries} transition:persist />
-  <MainContent class={`${css}`} id={`${id}`} transition:animate="fade">
+  <MainContent class={`${css} overflow-auto`} id={`${id}`} transition:animate="fade">
     <slot />
   </MainContent>
 </div>

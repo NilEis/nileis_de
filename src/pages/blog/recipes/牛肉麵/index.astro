@@ -1,5 +1,112 @@
 ---
+import { undefined } from "astro:schema";
 import BlogEntry from "../../../../components/BlogEntry.astro";
+
+type Range = {
+    min: number;
+    max: number;
+};
+
+type FracAmount = {
+    whole: number;
+    numerator: number;
+};
+
+type Ingredient = {
+    name: string;
+    amount?: number | Range | FracAmount;
+    unit?: "tbsp." | "g" | "ml" | "l" | "cups";
+    important?: true;
+};
+type IngredientCategory = {
+    name: string;
+    ingredients: Ingredient[];
+};
+const ingredients: IngredientCategory[] = [
+    {
+        name: "Spices",
+        ingredients: [
+            { name: "Chinese black cardamoms", amount: 2, unit: "tbsp." },
+            { name: "bay leaves", amount: 2, unit: "tbsp.", important: true },
+            { name: "star anise", amount: 2, unit: "tbsp." },
+            { name: "licorice slices", amount: 2, unit: "tbsp." },
+            {
+                name: "Sichuan peppercorn",
+                amount: 1,
+                unit: "tbsp.",
+                important: true,
+            },
+            { name: "fennel seeds", amount: 1, unit: "tbsp." },
+            { name: "goji berries", amount: 1, unit: "tbsp." },
+        ],
+    },
+    {
+        name: "Soup",
+        ingredients: [
+            { name: "Beef shank or beef chuck", amount: 700, unit: "g" },
+            { name: "cooking oil", amount: 6, unit: "tbsp." },
+            { name: "cloves garlic", amount: { min: 15, max: 18 } },
+            { name: "ginger", amount: 60, unit: "g" },
+            { name: "large onion", amount: 0.5, unit: "g" },
+            { name: "green onions", amount: 5 },
+            { name: "Doubanjiang (豆瓣醬)", amount: 3, unit: "tbsp." },
+            { name: "sugar", amount: 2, unit: "tbsp." },
+            { name: "soy sauce", amount: 120, unit: "ml" },
+            { name: "shaoxing wine", amount: 0.5, unit: "cups" },
+            { name: "dark soy sauce", amount: 1, unit: "tbsp." },
+            { name: "salt", amount: 0.5, unit: "tbsp." },
+            { name: "large tomatos", amount: 2 },
+            { name: "beef bouillon", amount: 2, unit: "tbsp." },
+            {
+                name: "water",
+                amount: { whole: 3, numerator: 1 / 3 },
+                unit: "l",
+            },
+        ],
+    },
+    {
+        name: "Sides",
+        ingredients: [
+            { name: "baby bok choy", amount: 1 },
+            { name: "wheat noodles" },
+            { name: "green onions" },
+        ],
+    },
+];
+
+function formatAmount(amount?: number | Range | FracAmount): string {
+    if (!amount) {
+        return "";
+    }
+    if (typeof amount === "number") {
+        return `$${amount}$`;
+    } else if ("min" in amount && "max" in amount) {
+        return `$${amount.min}-${amount.max}$`;
+    } else if ("whole" in amount && "numerator" in amount) {
+        return formatFracAmount(amount);
+    }
+    return "";
+}
+
+function floatEqual(a: number, b: number, epsilon = 0.0001): boolean {
+    return Math.abs(a - b) < epsilon;
+}
+
+function formatFracAmount(amount: FracAmount): string {
+    let res = `${amount.whole}`;
+    if (floatEqual(amount.numerator, 1 / 3)) {
+        res += `\\frac{1}{3}`;
+    } else if (floatEqual(amount.numerator, 1 / 2)) {
+        res += `\\frac{1}{2}`;
+    } else if (floatEqual(amount.numerator, 1 / 4)) {
+        res += `\\frac{1}{4}`;
+    } else if (floatEqual(amount.numerator, 3 / 4)) {
+        res += `\\frac{3}{4}`;
+    } else {
+        res = `${amount.whole + amount.numerator}`;
+    }
+    return `$${res}$`;
+}
 ---
 
 <BlogEntry
@@ -10,30 +117,76 @@ import BlogEntry from "../../../../components/BlogEntry.astro";
     <section class="w-full max-w-3xl mx-auto mt-10">
         <img src="title.png" alt="牛肉麵" class="rounded-lg" />
         <h2 class="text-2xl">Ingredients</h2>
+        <button id="save_ingredients" class="underline">save</button>
         <dl class="space-y-4">
-            <div>
-                <dt>Spices</dt>
-                <dd>
-                    <ul class="list-disc list-inside">
-                        <li>2 Chinese black cardamoms</li>
-                        <li class="font-bold">2 bay leaves</li>
-                        <li>2 star anise</li>
-                        <li>2 licorice slices</li>
-                        <li class="font-bold">1 tbsp Sichuan peppercorn</li>
-                        <li>1 tsp fennel seeds</li>
-                        <li>1 tbsp goji berries</li>
-                    </ul>
-                </dd>
-            </div>
-            <div>
-                <dt>Suppe</dt>
-                <dd>
-                    <ul class="list-disc list-inside">
-                        <li>~700g Beef shank or beef chuck</li>
-                        <li>6 tablespoons cooking oil</li>
-                    </ul>
-                </dd>
-            </div>
+            {
+                ingredients.map((c) => (
+                    <div>
+                        <dt>{c.name}</dt>
+                        <dd>
+                            <ul class="list-disc list-inside">
+                                {c.ingredients.map((ingredient) => (
+                                    <li
+                                        class={
+                                            ingredient.important === true
+                                                ? "font-bold"
+                                                : ""
+                                        }
+                                    >
+                                        {`${formatAmount(ingredient.amount)} ${ingredient.unit || ""} ${ingredient.name}`.trim()}
+                                    </li>
+                                ))}
+                            </ul>
+                        </dd>
+                    </div>
+                ))
+            }
         </dl>
     </section>
+
+    <script is:inline define:vars={{ ingredients }}>
+        function formatFracAmount(amount) {
+            let res = `${amount.whole}`;
+            if (floatEqual(amount.numerator, 1 / 3)) {
+                res += `1/3`;
+            } else if (floatEqual(amount.numerator, 1 / 2)) {
+                res += `1/2`;
+            } else if (floatEqual(amount.numerator, 1 / 4)) {
+                res += `1/4`;
+            } else if (floatEqual(amount.numerator, 3 / 4)) {
+                res += `3/4`;
+            } else {
+                res = `${amount.whole + amount.numerator}`;
+            }
+            return `$${res}$`;
+        }
+
+        function formatAmount(amount) {
+            if (!amount) {
+                return "";
+            }
+            if (typeof amount === "number") {
+                return `$${amount}$`;
+            } else if ("min" in amount && "max" in amount) {
+                return `$${amount.min}-${amount.max}$`;
+            } else if ("whole" in amount && "numerator" in amount) {
+                return formatFracAmount(amount);
+            }
+            return "";
+        }
+
+        document
+            .getElementById("save_ingredients")
+            .addEventListener("click", async () => {
+                const einkaufsliste = ingredients
+                    .map((i) =>
+                        `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
+                    )
+                    .join("\n");
+                await navigator.share({
+                    title: "Einkaufsliste",
+                    text: einkaufsliste,
+                });
+            });
+    </script>
 </BlogEntry>
