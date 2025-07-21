@@ -144,6 +144,10 @@ function formatFracAmount(amount: FracAmount): string {
     </section>
 
     <script is:inline define:vars={{ ingredients }}>
+        function floatEqual(a, b, epsilon = 0.0001) {
+            return Math.abs(a - b) < epsilon;
+        }
+
         function formatFracAmount(amount) {
             let res = `${amount.whole}`;
             if (floatEqual(amount.numerator, 1 / 3)) {
@@ -157,7 +161,7 @@ function formatFracAmount(amount: FracAmount): string {
             } else {
                 res = `${amount.whole + amount.numerator}`;
             }
-            return `$${res}$`;
+            return `${res}`;
         }
 
         function formatAmount(amount) {
@@ -165,27 +169,29 @@ function formatFracAmount(amount: FracAmount): string {
                 return "";
             }
             if (typeof amount === "number") {
-                return `$${amount}$`;
+                return `${amount}`;
             } else if ("min" in amount && "max" in amount) {
-                return `$${amount.min}-${amount.max}$`;
+                return `${amount.min}-${amount.max}`;
             } else if ("whole" in amount && "numerator" in amount) {
                 return formatFracAmount(amount);
             }
             return "";
         }
 
+        const einkaufsliste = ingredients
+            .map((c) =>
+                c.ingredients.map((i) =>
+                    `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
+                ),
+            )
+            .join("\n");
+
         document
             .getElementById("save_ingredients")
             .addEventListener("click", async () => {
-                const einkaufsliste = ingredients
-                    .map((c) =>
-                        c.ingredients.map((i) =>
-                            `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
-                        ),
-                    )
-                    .join("\n");
+                console.log(einkaufsliste);
                 await navigator.share({
-                    title: "Einkaufsliste",
+                    title: "Einkaufsliste für 牛肉麵",
                     text: einkaufsliste,
                 });
             });
