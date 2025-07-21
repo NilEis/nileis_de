@@ -116,7 +116,6 @@ function formatFracAmount(amount: FracAmount): string {
     <section class="w-full max-w-3xl mx-auto mt-10">
         <img src="title.png" alt="牛肉麵" class="rounded-lg" />
         <h2 class="text-2xl">Ingredients</h2>
-        <button id="save_ingredients" class="underline">save</button>
         <dl class="space-y-4">
             {
                 ingredients.map((c) => (
@@ -142,58 +141,4 @@ function formatFracAmount(amount: FracAmount): string {
             }
         </dl>
     </section>
-
-    <script is:inline define:vars={{ ingredients }}>
-        function floatEqual(a, b, epsilon = 0.0001) {
-            return Math.abs(a - b) < epsilon;
-        }
-
-        function formatFracAmount(amount) {
-            let res = `${amount.whole}`;
-            if (floatEqual(amount.numerator, 1 / 3)) {
-                res += `1/3`;
-            } else if (floatEqual(amount.numerator, 1 / 2)) {
-                res += `1/2`;
-            } else if (floatEqual(amount.numerator, 1 / 4)) {
-                res += `1/4`;
-            } else if (floatEqual(amount.numerator, 3 / 4)) {
-                res += `3/4`;
-            } else {
-                res = `${amount.whole + amount.numerator}`;
-            }
-            return `${res}`;
-        }
-
-        function formatAmount(amount) {
-            if (!amount) {
-                return "";
-            }
-            if (typeof amount === "number") {
-                return `${amount}`;
-            } else if ("min" in amount && "max" in amount) {
-                return `${amount.min}-${amount.max}`;
-            } else if ("whole" in amount && "numerator" in amount) {
-                return formatFracAmount(amount);
-            }
-            return "";
-        }
-
-        const einkaufsliste = ingredients
-            .map((c) =>
-                c.ingredients.map((i) =>
-                    `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
-                ),
-            )
-            .join("\n");
-
-        document
-            .getElementById("save_ingredients")
-            .addEventListener("click", async () => {
-                console.log(einkaufsliste);
-                await navigator.share({
-                    url: "Einkaufsliste für 牛肉麵",
-                    text: einkaufsliste,
-                });
-            });
-    </script>
 </BlogEntry>
