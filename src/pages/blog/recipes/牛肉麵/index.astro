@@ -191,7 +191,7 @@ function formatFracAmount(amount: FracAmount): string {
             .addEventListener("click", async () => {
                 console.log(einkaufsliste);
                 await navigator.share({
-                    title: "Einkaufsliste für 牛肉麵",
+                    url: "Einkaufsliste für 牛肉麵",
                     text: einkaufsliste,
                 });
             });
