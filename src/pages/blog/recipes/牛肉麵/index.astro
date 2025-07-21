@@ -178,8 +178,10 @@ function formatFracAmount(amount: FracAmount): string {
             .getElementById("save_ingredients")
             .addEventListener("click", async () => {
                 const einkaufsliste = ingredients
-                    .map((i) =>
-                        `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
+                    .map((c) =>
+                        c.ingredients.map((i) =>
+                            `${formatAmount(i.amount)} ${i.unit || ""} ${i.name}`.trim(),
+                        ),
                     )
                     .join("\n");
                 await navigator.share({
