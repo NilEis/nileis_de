@@ -19,7 +19,7 @@ const { class: css = "", id = "", title } = Astro.props;
 <TitleAndMeta title={`${title}`} />
 <LatexSupport />
 <div class="flex min-h-screen">
-  <Sidebare title={title} items={entries} transition:persist />
+  <Sidebare title={title} items={entries} transition:persist class="w-64 bg-gray-100 dark:bg-gray-800 p-4 top-0 sticky h-screen shrink-0" />
   <MainContent class={`${css} overflow-auto`} id={`${id}`} transition:animate="fade">
     <slot />
   </MainContent>

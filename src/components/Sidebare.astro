@@ -5,13 +5,13 @@ import LinkList from "./LinkList.astro";
 interface Props {
     title: string;
     items: Route[];
+    class?: string;
 }
 
-const { title = "Menu", items = [] } = Astro.props;
-
+const { title = "Menu", items = [], class: cls = "" } = Astro.props;
 ---
 
-<aside class="w-64 bg-gray-100 dark:bg-gray-800 p-4 top-0 sticky h-screen shrink-0">
+<aside class={cls}>
     {
         title && (
             <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
@@ -20,6 +20,6 @@ const { title = "Menu", items = [] } = Astro.props;
         )
     }
     <nav>
-        <LinkList sites={items}></LinkList>
+        <LinkList sites={items} />
     </nav>
 </aside>
