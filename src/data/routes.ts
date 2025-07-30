@@ -30,6 +30,12 @@ export class Route implements IRoute {
 
 export const routes: Route[] = generateRoutes([
   {
+    name: 'Privacy',
+    url: 'privacy',
+    Description:
+        'This page outlines the privacy policy for the website, detailing how user data is collected, used, and protected. It includes information on cookies, data storage, and user rights regarding their personal information. The page is designed to be clear and informative, ensuring users understand their privacy rights while using the site.'
+  },
+  {
     name: 'chip-8',
     url: 'chip-8/',
     Description:
