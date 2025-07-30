@@ -20,9 +20,10 @@ export default defineConfig({
     compressor({
       fileExtensions: [
         '.css', '.js', '.html', '.xml', '.cjs', '.mjs', '.svg', '.txt', '.wasm'
-      ]
-    }),
-    compress_cleanup()
+      ],
+      brotli: true,
+      gzip: true,
+    })
   ],
 
   // adapter: vercel({
