@@ -1,14 +1,13 @@
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import compressor from 'astro-compressor';
 import {defineConfig} from 'astro/config';
 
-import cloudflare from '@astrojs/cloudflare';
-
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  output: 'static',
   site: 'https://www.nileis.de',
 
   integrations: [
@@ -17,7 +16,11 @@ export default defineConfig({
         return !page.includes('/admin/')
       }
     }),
-    compressor()
+    compressor({
+      fileExtensions: [
+        '.css', '.js', '.html', '.xml', '.cjs', '.mjs', '.svg', '.txt', '.wasm'
+      ]
+    })
   ],
 
   // adapter: vercel({
@@ -30,5 +33,9 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  adapter: cloudflare(),
+  adapter: vercel({
+    webAnalytics: {enabled: true},
+    speedInsights: {enabled: true},
+    maxDuration: 1,
+  }),
 });
