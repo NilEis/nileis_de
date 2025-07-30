@@ -5,10 +5,13 @@ import tailwindcss from '@tailwindcss/vite';
 import compressor from 'astro-compressor';
 import {defineConfig} from 'astro/config';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
   site: 'https://www.nileis.de',
+
   integrations: [
     react(), sitemap({
       filter: (page) => {
@@ -18,13 +21,15 @@ export default defineConfig({
     compressor()
   ],
 
-  adapter: vercel({
-    webAnalytics: {enabled: true},
-    speedInsights: {enabled: true},
-    maxDuration: 1,
-  }),
+  // adapter: vercel({
+  //   webAnalytics: {enabled: true},
+  //   speedInsights: {enabled: true},
+  //   maxDuration: 1,
+  // }),
 
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare(),
 });
