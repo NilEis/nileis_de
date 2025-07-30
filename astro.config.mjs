@@ -4,8 +4,6 @@ import tailwindcss from '@tailwindcss/vite';
 import compressor from 'astro-compressor';
 import {defineConfig} from 'astro/config';
 
-import compress_cleanup from './integrations/compress-cleanup';
-
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
