@@ -9,7 +9,8 @@
     "build": "pnpm run gen:version && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "preview:wrangler": "pnpm build && wrangler dev"
+    "preview:wrangler": "pnpm build && wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
