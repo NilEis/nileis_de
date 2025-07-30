@@ -1,9 +1,10 @@
-import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 import compressor from 'astro-compressor';
 import {defineConfig} from 'astro/config';
+
+import compress_cleanup from './integrations/compress-cleanup';
 
 // https://astro.build/config
 export default defineConfig({
@@ -11,7 +12,7 @@ export default defineConfig({
   site: 'https://www.nileis.de',
 
   integrations: [
-    react(), sitemap({
+    sitemap({
       filter: (page) => {
         return !page.includes('/admin/')
       }
@@ -20,7 +21,8 @@ export default defineConfig({
       fileExtensions: [
         '.css', '.js', '.html', '.xml', '.cjs', '.mjs', '.svg', '.txt', '.wasm'
       ]
-    })
+    }),
+    compress_cleanup()
   ],
 
   // adapter: vercel({
