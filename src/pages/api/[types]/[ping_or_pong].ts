@@ -1,14 +1,14 @@
 import type {APIRoute} from 'astro';
 
-const types = ['text', 'json', 'html'] as const;
-const values = ['ping', 'pong'] as const;
+export const request_types = ['text', 'json', 'html'] as const;
+export const request_values = ['ping', 'pong'] as const;
 
-export type pp_t = (typeof values)[number];
-export type ct_t = (typeof types)[number];
+export type pp_t = (typeof request_values)[number];
+export type ct_t = (typeof request_types)[number];
 
 export function getStaticPaths() {
-  return types.flatMap(
-      v => values.map(value => ({params: {ping_or_pong: value, type: v}})));
+  return request_types.flatMap(
+      v => request_values.map(value => ({params: {ping_or_pong: value, type: v}})));
 }
 
 export const GET: APIRoute =

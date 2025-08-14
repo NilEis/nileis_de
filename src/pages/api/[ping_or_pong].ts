@@ -1,6 +1,6 @@
 import type {APIRoute} from 'astro';
 
-import {ping_pong, type pp_t} from './[ping_or_pong]/[type]';
+import {ping_pong, type pp_t} from './[types]/[ping_or_pong]';
 
 export function getStaticPaths() {
   const values: string[] = ['ping', 'pong'];
