@@ -63,7 +63,7 @@ export function encodeApod(arr:string): number[]
 
 const year_2025: Apod[] = import.meta.env.NASA_API!== undefined?(await (await fetch (`https://api.nasa.gov/planetary/apod?api_key=${import.meta.env.NASA_API}&start_date=2025-01-01`)).json ()) as Apod[]:[];
 
-export const apodData: Apod[] = [
+export const apodData: Apod[] = shuffle([
   ...(year_1999 as Apod[]),
   ...(year_2000 as Apod[]),
   ...(year_2001 as Apod[]),
@@ -91,11 +91,23 @@ export const apodData: Apod[] = [
   ...(year_2023 as Apod[]),
   ...(year_2024 as Apod[]),
   ...(year_2025)
-].filter ((apod) => apod.media_type !== "video");
+].filter ((apod) => apod.media_type !== "video"));
 
 const rle_encoded_as_string = JSON.stringify (encodeApod (JSON.stringify (apodData)));
 
 export const GET:APIRoute = () =>
 {
   return new Response (rle_encoded_as_string);
+}
+
+function shuffle<T>(array: T[]): T[] {
+    let currentIndex = array.length,  randomIndex;
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+  
+    return array;
 }
