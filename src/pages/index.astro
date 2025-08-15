@@ -35,7 +35,7 @@ const visitors = await (await fetch(new URL("/api/count", Astro.url))).text();
       Reload background
     </div>
     <div class="text-gray-500 dark:text-gray-400">
-      <span id="count">{ visitors }</span> visitors
+      <span id="count">{visitors}</span> visitors
     </div>
     <Version slot="after-list" />
   </LinkList>
@@ -57,7 +57,7 @@ const visitors = await (await fetch(new URL("/api/count", Astro.url))).text();
   import { renderBackground } from "./main.ts";
   const fetchedMaxImage = await fetch("/nasa/apod/pictures.json");
   const maxImage = await fetchedMaxImage.json();
-  await renderBackground(maxImage);
+  document.body.onload = async () => await renderBackground(maxImage);
   document.getElementById("rerender")!.onclick = async () => {
     await renderBackground(maxImage);
   };
