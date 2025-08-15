@@ -19,7 +19,7 @@ export default defineConfig({
       fileExtensions: [
         '.css', '.js', '.html', '.xml', '.cjs', '.mjs', '.svg', '.txt', '.wasm'
       ],
-      brotli: true,
+      brotli: false,
       gzip: true,
     })
   ],
