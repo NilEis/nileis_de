@@ -100,7 +100,7 @@ export const GET:APIRoute = () =>
   return new Response (rle_encoded_as_string);
 }
 
-export const prerender = false;
+export const prerender = true;
 
 function shuffle<T>(array: T[]): T[] {
     let currentIndex = array.length,  randomIndex;
