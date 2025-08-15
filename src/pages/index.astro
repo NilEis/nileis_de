@@ -57,7 +57,7 @@ const visitors = await (await fetch(new URL("/api/count", Astro.url))).text();
   import { renderBackground } from "./main.ts";
   const fetchedMaxImage = await fetch("/nasa/apod/pictures.json");
   const maxImage = await fetchedMaxImage.json();
-  document.body.onload = async () => await renderBackground(maxImage);
+  await renderBackground(maxImage);
   document.getElementById("rerender")!.onclick = async () => {
     await renderBackground(maxImage);
   };
