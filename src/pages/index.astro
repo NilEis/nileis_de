@@ -6,8 +6,11 @@ import { routes } from "../data/routes.ts";
 import MainContent from "../components/MainContent.astro";
 import { Count } from "./api/count";
 export const prerender = false;
+console.log("Index page prerendering disabled");
 await Count();
+console.log("Count API called");
 const visitors = await (await fetch(new URL("/api/count", Astro.url))).text();
+console.log("Visitors count fetched:", visitors);
 ---
 
 <TitleAndMeta />
@@ -55,10 +58,14 @@ const visitors = await (await fetch(new URL("/api/count", Astro.url))).text();
 
 <script>
   import { renderBackground } from "./main.ts";
+  console.log("Rendering background image");
   const fetchedMaxImage = await fetch("/nasa/apod/pictures.json");
   const maxImage = await fetchedMaxImage.json();
+  console.log("Fetched max image data:", fetchedMaxImage);
   await renderBackground(maxImage);
+  console.log("Background image rendered");
   document.getElementById("rerender")!.onclick = async () => {
     await renderBackground(maxImage);
   };
+  console.log("Rerender button set up");
 </script>
