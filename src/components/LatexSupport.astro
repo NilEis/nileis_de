@@ -4,6 +4,15 @@ import InlineScript from "./InlineScript.astro";
 
 <script is:inline>
     MathJax = {
+        loader: {
+            paths: {
+                mathjax: "https://cdn.jsdelivr.net/npm/mathjax@4.0.0",
+            },
+            load: ["input/tex", "input/mml", "input/asciimath", "output/svg", "output/chtml", "ui/menu"],
+        },
+        output: {
+            font: "mathjax-newcm",
+        },
         tex: {
             inlineMath: [
                 ["$", "$"],
@@ -13,8 +22,8 @@ import InlineScript from "./InlineScript.astro";
     };
 </script>
 <InlineScript
-    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"
-    integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei"
+    src="https://cdn.jsdelivr.net/npm/mathjax@4.0.0/startup.js"
+    integrity="sha384-V8Uc+jzQMe7n4tFx1oAuCOiBj0WFbXurxmgghjXXzYHRKbpk8D/aCD16BkdE/MDh"
     credentials="omit"
     async
 />
