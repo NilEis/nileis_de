@@ -1,0 +1,18 @@
+---
+interface Props {
+    src: string;
+    integrity: string;
+    credentials?: "include" | "same-origin" | "omit";
+    [key: string]: any;
+}
+
+const { src , integrity, credentials = undefined, ...rest } = Astro.props;
+
+const Content: string = await fetch(src, {
+    integrity:
+        integrity,
+    credentials: credentials,
+}).then((response) => response.text());
+---
+
+<script is:inline set:html={Content} {...rest} />

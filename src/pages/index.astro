@@ -51,14 +51,15 @@ export const prerender = false;
 </MainContent>
 
 <script>
+  import { ApiPath } from "../data/apipath";
   import { renderBackground } from "./main.ts";
-  const fetchedMaxImage = await fetch("/nasa/apod/pictures.json");
+  const fetchedMaxImage = await fetch(`${ApiPath}/nasa/apod/pictures`);
   const maxImage = await fetchedMaxImage.json();
   await renderBackground(maxImage);
   document.getElementById("rerender")!.onclick = async () => {
     await renderBackground(maxImage);
   };
-  await fetch("/api/count", {method: "POST"});
-  const visitors = await (await fetch("/api/count")).text();
+  await fetch(`${ApiPath}/db/count`, { method: "POST" });
+  const visitors = await (await fetch(`${ApiPath}/db/count`)).text();
   document.getElementById("count")!.textContent = visitors;
 </script>

@@ -23,7 +23,7 @@ export function ping_pong(ping_or_pong: pp_t, type: ct_t):
       switch (type) {
         case 'json':
           return new Response(
-              JSON.stringify({[pp]: true}),
+              JSON.stringify({value: pp}),
               {headers: {'Content-Type': 'application/json'}});
         case 'text':
           return new Response(pp, {headers: {'Content-Type': 'text/plain'}});

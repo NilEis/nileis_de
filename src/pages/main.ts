@@ -1,9 +1,10 @@
-import type { Apod } from "./nasa/apod/apod.json";
+import { ApiPath } from "../data/apipath";
+import type { Apod } from "./api/v1/nasa/apod/apod";
 
 export async function renderBackground(maxImage: number)
 {
   const apodIndex = Math.floor (Math.random () * maxImage);
-  const fetchedApod = await fetch (`/nasa/apod/${apodIndex}`);
+  const fetchedApod = await fetch (`${ApiPath}/nasa/apod/${apodIndex}`);
   const apodDataBuffer = (await fetchedApod.json ()) as number[];
   const decodedData = decodeApod (apodDataBuffer);
   const apodData = (JSON.parse (decodedData)) as Apod;

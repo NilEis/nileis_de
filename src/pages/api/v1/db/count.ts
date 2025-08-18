@@ -1,6 +1,6 @@
 import type {APIRoute} from 'astro';
 
-import {turso} from '../../turso';
+import {turso} from '../../../../turso';
 
 export const prerender = false;
 

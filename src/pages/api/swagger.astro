@@ -1,0 +1,38 @@
+---
+import InlineStyle from "../../components/InlineStyle.astro";
+import InlineScript from "../../components/InlineScript.astro";
+import MainContent from "../../components/MainContent.astro";
+import TitleAndMeta from "../../components/TitleAndMeta.astro";
+---
+
+<TitleAndMeta title="API Documentation" />
+<MainContent>
+  <InlineStyle
+    rel="stylesheet"
+    href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css"
+    integrity="sha384-+yyzNgM3K92sROwsXxYCxaiLWxWJ0G+v/9A+qIZ2rgefKgkdcmJI+L601cqPD/Ut"
+    credentials="omit"
+  />
+  <InlineScript
+    src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"
+    integrity="sha384-qn5tagrAjZi8cSmvZ+k3zk4+eDEEUcP9myuR2J6V+/H6rne++v6ChO7EeHAEzqxQ"
+    credentials="omit"
+  />
+  <InlineScript
+    src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js"
+    integrity="sha384-SiLF+uYBf9lVQW98s/XUYP14enXJN31bn0zu3BS1WFqr5hvnMF+w132WkE/v0uJw"
+    credentials="omit"
+  />
+
+  <div id="swagger-ui"></div>
+  <script is:inline>
+    window.onload = () => {
+      window.ui = SwaggerUIBundle({
+        url: "./apidoc.yml",
+        dom_id: "#swagger-ui",
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        layout: "StandaloneLayout",
+      });
+    };
+  </script>
+</MainContent>
